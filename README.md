@@ -1,6 +1,8 @@
 sbt-js-engine
 =============
 
+[![Build Status](https://api.travis-ci.org/sbt/sbt-js-engine.png?branch=master)](https://travis-ci.org/sbt/sbt-js-engine)
+
 This plugin mainly provides support for the authoring of sbt plugins that require js-engine.
 
 Of particular note is SbtJsTaskPlugin. This plugin provides an abstract base intended to be used for creating

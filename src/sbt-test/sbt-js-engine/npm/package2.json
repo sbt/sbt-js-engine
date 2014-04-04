@@ -1,0 +1,7 @@
+{
+    "name": "somename2",
+    "version": "1.0.0",
+    "dependencies": {
+        "console-browserify": "0.1.6"
+    }
+}

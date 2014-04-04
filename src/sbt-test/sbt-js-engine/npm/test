@@ -1,0 +1,18 @@
+# There should be no node modules as there is no package.json visible.
+> web-assets:webNodeModules
+-$ exists node_modules/console-browserify/index.js
+
+# Unhide the package json - npm should now be invoked
+$ copy-file package1.json package.json
+> web-assets:webNodeModules
+$ exists node_modules/console-browserify/index.js
+
+# Now change the package.json file and expect it to perform an update
+$ copy-file package2.json package.json
+> web-assets:webNodeModules
+$ exists node_modules/console-browserify/index.js
+
+# Remove the package.json file and expect the node_modules to disappear
+$ delete package.json
+> web-assets:webNodeModules
+-$ exists node_modules

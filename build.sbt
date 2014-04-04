@@ -4,7 +4,7 @@ organization := "com.typesafe.sbt"
 
 name := "sbt-js-engine"
 
-version := "1.0.0-SNAPSHOT"
+version := "1.0.0-M2a"
 
 scalaVersion := "2.10.3"
 

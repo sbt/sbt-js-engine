@@ -59,7 +59,6 @@ object SbtJsTask extends AutoPlugin {
 
   val jsTaskSpecificUnscopedConfigSettings = Seq(
     fileInputHasher := OpInputHasher[File](f => OpInputHash.hashString(f.getAbsolutePath + "|" + jsOptions.value)),
-    jsOptions := "{}",
     resourceManaged := target.value / moduleName.value
   )
 
@@ -78,6 +77,7 @@ object SbtJsTask extends AutoPlugin {
       )
 
   override def projectSettings = Seq(
+    jsOptions := "{}",
     timeoutPerSource := 30.seconds
   )
 

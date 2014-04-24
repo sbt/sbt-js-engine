@@ -16,7 +16,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.typesafe" %% "jse" % "1.0.0-M2",
+  "com.typesafe" %% "jse" % "1.0.0-SNAPSHOT",
   "com.typesafe" %% "npm" % "1.0.0-M2",
   "org.specs2" %% "specs2" % "2.2.2" % "test",
   "junit" % "junit" % "4.11" % "test"

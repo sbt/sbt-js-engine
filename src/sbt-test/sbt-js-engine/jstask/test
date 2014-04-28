@@ -1,0 +1,13 @@
+> set excludeFilter in (Assets, HelloJsTaskKeys.hello) := GlobFilter("_b.js")
+> hello
+$ exists target/web/hello/main/a.js
+-$ exists target/web/hello/main/_b.js
+
+> clean
+> set HelloJsTaskKeys.compress := true
+> hello
+-$ exists target/web/hello/main/a.js
+$ exists target/web/hello/main/a.min.js
+
+> set HelloJsTaskKeys.fail := true
+-> hello

@@ -28,11 +28,10 @@ object JsTaskImport {
 
   object JsTaskKeys {
 
-    val fileFilter = SettingKey[FileFilter]("jstask-file-filter", "The file extension of files to perform a task on.")
     val fileInputHasher = TaskKey[OpInputHasher[File]]("jstask-file-input-hasher", "A function that constitues a change for a given file.")
     val jsOptions = TaskKey[String]("jstask-js-options", "The JSON options to be passed to the task.")
     val taskMessage = SettingKey[String]("jstask-message", "The message to output for a task")
-    val shellFile = SettingKey[String]("jstask-shell-file", "The name of the file to perform a given task.")
+    val shellFile = SettingKey[URL]("jstask-shell-url", "The url of the file to perform a given task.")
     val shellSource = TaskKey[File]("jstask-shell-source", "The target location of the js shell script to use.")
     val timeoutPerSource = SettingKey[FiniteDuration]("jstask-timeout-per-source", "The maximum number of seconds to wait per source file processed by the JS task.")
   }
@@ -70,7 +69,6 @@ object SbtJsTask extends AutoPlugin {
           SbtWeb.copyResourceTo(
             (target in Plugin).value / moduleName.value,
             shellFile.value,
-            SbtJsTask.getClass.getClassLoader,
             streams.value.cacheDirectory / "copy-resource"
           )
         }
@@ -108,19 +106,17 @@ object SbtJsTask extends AutoPlugin {
 
       def read(value: JsValue) = value match {
         case o: JsObject => new LineBasedProblem(
-          o.fields.get("message").map(_.convertTo[String]).getOrElse("unknown message"),
-          o.fields.get("severity").map {
-            v =>
-              v.toString() match {
-                case "info" => Severity.Info
-                case "warn" => Severity.Warn
-                case _ => Severity.Error
-              }
-          }.getOrElse(Severity.Error),
-          o.fields.get("lineNumber").map(_.convertTo[Int]).getOrElse(0),
-          o.fields.get("characterOffset").map(_.convertTo[Int]).getOrElse(0),
-          o.fields.get("lineContent").map(_.convertTo[String]).getOrElse("unknown line content"),
-          o.fields.get("source").map(_.convertTo[File]).getOrElse(file(""))
+          o.fields.get("message").fold("unknown message")(_.convertTo[String]),
+          o.fields.get("severity").fold(Severity.Error)(v =>
+            v.toString() match {
+              case "info" => Severity.Info
+              case "warn" => Severity.Warn
+              case _ => Severity.Error
+            }),
+          o.fields.get("lineNumber").fold(0)(_.convertTo[Int]),
+          o.fields.get("characterOffset").fold(0)(_.convertTo[Int]),
+          o.fields.get("lineContent").fold("unknown line content")(_.convertTo[String]),
+          o.fields.get("source").fold(file(""))(_.convertTo[File])
         )
         case x => deserializationError(s"Object expected for the problem, instead got $x")
       }
@@ -268,7 +264,7 @@ object SbtJsTask extends AutoPlugin {
     val nodeModulePaths = (nodeModuleDirectories in Plugin).value.map(_.getCanonicalPath)
     val engineProps = SbtJsEngine.engineTypeToProps((engineType in task).value, NodeEngine.nodePathEnv(nodeModulePaths.to[immutable.Seq]))
 
-    val sources = ((unmanagedSources in config).value ** (fileFilter in task in config).value).get
+    val sources = ((unmanagedSources in config).value ** ((includeFilter in task in config).value -- (excludeFilter in task in config).value)).get
 
     val logger: Logger = state.value.log
 

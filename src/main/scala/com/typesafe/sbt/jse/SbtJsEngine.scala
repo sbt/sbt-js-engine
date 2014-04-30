@@ -20,6 +20,7 @@ object JsEngineImport {
       val CommonNode, Node, PhantomJs, Rhino, Trireme = Value
     }
 
+    val command = SettingKey[Option[File]]("jse-command", "An optional path to the command used to invoke the engine.")
     val engineType = SettingKey[EngineType.Value]("jse-engine-type", "The type of engine to use.")
     val parallelism = SettingKey[Int]("jse-parallelism", "The number of parallel tasks for the JavaScript engine. Defaults to the # of available processors + 1 to keep things busy.")
 
@@ -48,11 +49,11 @@ object SbtJsEngine extends AutoPlugin {
   /**
    * Convert an engine type enum to an actor props.
    */
-  def engineTypeToProps(engineType: EngineType.Value, env: Map[String, String]) = {
+  def engineTypeToProps(engineType: EngineType.Value, command: Option[File], env: Map[String, String]) = {
     engineType match {
-      case EngineType.CommonNode => CommonNode.props(stdEnvironment = env)
-      case EngineType.Node => Node.props(stdEnvironment = env)
-      case EngineType.PhantomJs => PhantomJs.props()
+      case EngineType.CommonNode => CommonNode.props(command, stdEnvironment = env)
+      case EngineType.Node => Node.props(command, stdEnvironment = env)
+      case EngineType.PhantomJs => PhantomJs.props(command)
       case EngineType.Rhino => Rhino.props()
       case EngineType.Trireme => Trireme.props(stdEnvironment = env)
     }
@@ -73,8 +74,8 @@ object SbtJsEngine extends AutoPlugin {
             val pendingExitValue = SbtWeb.withActorRefFactory(state.value, this.getClass.getName) {
               arf =>
                 val webJarsNodeModulesPath = (webJarsNodeModulesDirectory in Plugin).value.getCanonicalPath
-                val nodePathEnv = NodeEngine.nodePathEnv(immutable.Seq(webJarsNodeModulesPath))
-                val engineProps = engineTypeToProps(engineType.value, nodePathEnv)
+                val nodePathEnv = LocalEngine.nodePathEnv(immutable.Seq(webJarsNodeModulesPath))
+                val engineProps = engineTypeToProps(engineType.value, command.value, nodePathEnv)
                 val engine = arf.actorOf(engineProps)
                 val npm = new Npm(engine, (webJarsNodeModulesDirectory in Plugin).value / "npm" / "lib" / "npm.js")
                 import ExecutionContext.Implicits.global
@@ -108,13 +109,12 @@ object SbtJsEngine extends AutoPlugin {
   private val defaultEngineType = EngineType.Trireme
 
   override def projectSettings: Seq[Setting[_]] = Seq(
-    engineType := sys.props.get("sbt.jse.engineType").map {
-      engineTypeStr =>
-        Try(EngineType.withName(engineTypeStr)).getOrElse {
-          println(s"Unknown engine type $engineTypeStr for sbt.jse.engineType. Resorting back to the default of $defaultEngineType.")
-          defaultEngineType
-        }
-    }.getOrElse(defaultEngineType),
+    engineType := sys.props.get("sbt.jse.engineType").fold(defaultEngineType)(engineTypeStr =>
+      Try(EngineType.withName(engineTypeStr)).getOrElse {
+        println(s"Unknown engine type $engineTypeStr for sbt.jse.engineType. Resorting back to the default of $defaultEngineType.")
+        defaultEngineType
+      }),
+    command := sys.props.get("sbt.jse.command").map(file),
     parallelism := java.lang.Runtime.getRuntime.availableProcessors() + 1,
     npmTimeout := 2.minutes
 

@@ -14,19 +14,37 @@ type can optionally produce managed resources.
 The other types of plugin are ones that wish to just invoke the js engine and so there are helper functions to do
 that.
 
-sbt-js-engine also enhances sbt-web with [npm](https://www.npmjs.org/) functionality. If a `package.json` file
-is found in the project's base directory then it will cause npm to run. By default npm will run in the JVM but just
-as with other sbt-js-engine plugins, the type of engine can be configured. For example to use Node directly:
+The following options are provided:
+
+Option              | Description
+--------------------|------------
+command             | The filesystem location of the command to execute. Commands such as "node" default to being known to your path. However there path can be supplied here."
+engineType          | The type of engine to use i.e. CommonNode, Node, PhantomJs, Rhino or Trireme. The default is Trireme.
+parallelism         | The number of parallel tasks for the JavaScript engine. Defaults to the # of available processors + 1 to keep things busy.
+npmTimeout          | The maximum number of seconds to for npm to do its thing.
+
+The following sbt code illustrates how the engine type can be set to Node:
 
 ```scala
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 ```
 
-Alternatively you can provide a system property via SBT_OPTS, for example:
+Alternatively, for `command` and `engineType` you can provide a system property via SBT_OPTS, for example:
 
 ```bash
 export SBT_OPTS="$SBT_OPTS -Dsbt.jse.engineType=Node"
 ```
+
+and another example:
+
+```bash
+export SBT_OPTS="$SBT_OPTS -Dsbt.jse.command=/usr/local/bin/node"
+```
+
+## npm
+
+sbt-js-engine also enhances sbt-web with [npm](https://www.npmjs.org/) functionality. If a `package.json` file
+is found in the project's base directory then it will cause npm to run.
 
 npm extracts its artifacts into the node_modules folder of a base directory and makes the contents available to
 sbt-web plugins as a whole. Note that sbt-js-engines loads the

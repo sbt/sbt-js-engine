@@ -262,7 +262,11 @@ object SbtJsTask extends AutoPlugin {
                         ): Def.Initialize[Task[Seq[File]]] = Def.task {
 
     val nodeModulePaths = (nodeModuleDirectories in Plugin).value.map(_.getCanonicalPath)
-    val engineProps = SbtJsEngine.engineTypeToProps((engineType in task).value, NodeEngine.nodePathEnv(nodeModulePaths.to[immutable.Seq]))
+    val engineProps = SbtJsEngine.engineTypeToProps(
+      (engineType in task).value,
+      (command in task).value,
+      LocalEngine.nodePathEnv(nodeModulePaths.to[immutable.Seq])
+    )
 
     val sources = ((unmanagedSources in config).value ** ((includeFilter in task in config).value -- (excludeFilter in task in config).value)).get
 
@@ -378,6 +382,7 @@ object SbtJsTask extends AutoPlugin {
    *
    * @param state The SBT state.
    * @param engineType The type of engine to use.
+   * @param command An optional path to the engine.
    * @param nodeModules The node modules to provide (if the JavaScript engine in use supports this).
    * @param shellSource The script to execute.
    * @param args The arguments to pass to the script.
@@ -388,12 +393,17 @@ object SbtJsTask extends AutoPlugin {
   def executeJs(
                  state: State,
                  engineType: EngineType.Value,
+                 command: Option[File],
                  nodeModules: Seq[String],
                  shellSource: File,
                  args: Seq[String],
                  timeout: FiniteDuration
                  ): Seq[JsValue] = {
-    val engineProps = SbtJsEngine.engineTypeToProps(engineType, NodeEngine.nodePathEnv(nodeModules.to[immutable.Seq]))
+    val engineProps = SbtJsEngine.engineTypeToProps(
+      engineType,
+      command,
+      LocalEngine.nodePathEnv(nodeModules.to[immutable.Seq])
+    )
 
     withActorRefFactory(state, this.getClass.getName) {
       arf =>

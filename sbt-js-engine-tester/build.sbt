@@ -1,2 +1,2 @@
-lazy val root = (project in file(".")).addPlugins(SbtWeb)
+lazy val root = (project in file(".")).enablePlugins(SbtWeb)
 

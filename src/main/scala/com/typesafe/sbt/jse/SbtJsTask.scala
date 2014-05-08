@@ -289,11 +289,10 @@ object SbtJsTask extends AutoPlugin {
               val sourceBatches = (modifiedSources grouped Math.max(modifiedSources.size / (parallelism in task).value, 1)).toSeq
               sourceBatches.map {
                 sourceBatch =>
-                  implicit val timeout = Timeout((timeoutPerSource in task in config).value * sourceBatch.size)
                   withActorRefFactory(state.value, this.getClass.getName) {
                     arf =>
                       val engine = arf.actorOf(engineProps)
-                      implicit val timeout = Timeout((timeoutPerSource in task in config).value * sourceBatch.size)
+                      implicit val timeout = Timeout((timeoutPerSource in task in config).value * modifiedSources.size)
                       executeSourceFilesJs(
                         engine,
                         (shellSource in task in config).value,

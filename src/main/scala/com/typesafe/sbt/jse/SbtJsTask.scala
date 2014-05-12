@@ -76,7 +76,7 @@ object SbtJsTask extends AutoPlugin {
 
   override def projectSettings = Seq(
     jsOptions := "{}",
-    timeoutPerSource := 30.seconds
+    timeoutPerSource := 1.minute
   )
 
 

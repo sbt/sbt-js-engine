@@ -268,7 +268,7 @@ object SbtJsTask extends AutoPlugin {
       LocalEngine.nodePathEnv(nodeModulePaths.to[immutable.Seq])
     )
 
-    val sources = ((unmanagedSources in config).value ** ((includeFilter in task in config).value -- (excludeFilter in task in config).value)).get
+    val sources = ((unmanagedSources in task in config).value ** ((includeFilter in task in config).value -- (excludeFilter in task in config).value)).get
 
     val logger: Logger = state.value.log
 

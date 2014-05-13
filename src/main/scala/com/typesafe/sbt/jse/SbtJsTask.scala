@@ -296,7 +296,7 @@ object SbtJsTask extends AutoPlugin {
                       executeSourceFilesJs(
                         engine,
                         (shellSource in task in config).value,
-                        sourceBatch.pair(relativeTo((unmanagedSourceDirectories in config).value)),
+                        sourceBatch.pair(relativeTo((unmanagedSourceDirectories in task in config).value)),
                         (resourceManaged in task in config).value,
                         (jsOptions in task in config).value,
                         m => logger.error(m),

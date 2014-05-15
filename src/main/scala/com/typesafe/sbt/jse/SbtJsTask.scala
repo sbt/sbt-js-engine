@@ -34,6 +34,7 @@ object JsTaskImport {
     val shellFile = SettingKey[URL]("jstask-shell-url", "The url of the file to perform a given task.")
     val shellSource = TaskKey[File]("jstask-shell-source", "The target location of the js shell script to use.")
     val timeoutPerSource = SettingKey[FiniteDuration]("jstask-timeout-per-source", "The maximum number of seconds to wait per source file processed by the JS task.")
+    val sourceDependencies = SettingKey[Seq[TaskKey[Seq[File]]]]("jstask-source-dependencies", "Source dependencies between source file tasks.")
   }
 
 }
@@ -268,7 +269,7 @@ object SbtJsTask extends AutoPlugin {
       LocalEngine.nodePathEnv(nodeModulePaths.to[immutable.Seq])
     )
 
-    val sources = ((unmanagedSources in task in config).value ** ((includeFilter in task in config).value -- (excludeFilter in task in config).value)).get
+    val sources = ((Keys.sources in task in config).value ** ((includeFilter in task in config).value -- (excludeFilter in task in config).value)).get
 
     val logger: Logger = state.value.log
 
@@ -296,7 +297,7 @@ object SbtJsTask extends AutoPlugin {
                       executeSourceFilesJs(
                         engine,
                         (shellSource in task in config).value,
-                        sourceBatch.pair(relativeTo((unmanagedSourceDirectories in task in config).value)),
+                        sourceBatch.pair(relativeTo((sourceDirectories in task in config).value)),
                         (resourceManaged in task in config).value,
                         (jsOptions in task in config).value,
                         m => logger.error(m),
@@ -346,7 +347,12 @@ object SbtJsTask extends AutoPlugin {
     Seq(
       resourceGenerators <+= sourceFileTask,
       managedResourceDirectories += (resourceManaged in sourceFileTask).value
-    )
+    ) ++ inTask(sourceFileTask)(Seq(
+      managedSourceDirectories <<= Def.settingDyn { sourceDependencies.value.map(resourceManaged in _).join },
+      managedSources <<= Def.taskDyn { sourceDependencies.value.join.map(_.flatten) },
+      sourceDirectories := unmanagedSourceDirectories.value ++ managedSourceDirectories.value,
+      sources := unmanagedSources.value ++ managedSources.value
+    ))
   }
 
   /**
@@ -357,6 +363,7 @@ object SbtJsTask extends AutoPlugin {
    */
   def addJsSourceFileTasks(sourceFileTask: TaskKey[Seq[File]]): Seq[Setting[_]] = {
     Seq(
+      sourceDependencies in sourceFileTask := Nil,
       sourceFileTask in Assets := jsSourceFileTask(sourceFileTask, Assets).dependsOn(nodeModules in Plugin).value,
       sourceFileTask in TestAssets := jsSourceFileTask(sourceFileTask, TestAssets).dependsOn(nodeModules in Plugin).value,
       resourceManaged in sourceFileTask in Assets := webTarget.value / sourceFileTask.key.label / "main",

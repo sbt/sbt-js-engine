@@ -51,4 +51,6 @@ sbt-web plugins as a whole. Note that sbt-js-engines loads the
 actual source code of npm via a WebJar and invokes an "npm update". Any external npm activity can therefore be performed
 interchangeably with sbt-js-engine in place.
 
+> Note that the npm functionality requires JDK 7 when running Trireme given the additional file system support required.
+
 &copy; Typesafe Inc., 2014

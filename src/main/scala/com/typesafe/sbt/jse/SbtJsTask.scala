@@ -348,8 +348,8 @@ object SbtJsTask extends AutoPlugin {
       resourceGenerators <+= sourceFileTask,
       managedResourceDirectories += (resourceManaged in sourceFileTask).value
     ) ++ inTask(sourceFileTask)(Seq(
-      managedSourceDirectories <<= Def.settingDyn { sourceDependencies.value.map(resourceManaged in _).join },
-      managedSources <<= Def.taskDyn { sourceDependencies.value.join.map(_.flatten) },
+      managedSourceDirectories ++= Def.settingDyn { sourceDependencies.value.map(resourceManaged in _).join }.value,
+      managedSources ++= Def.taskDyn { sourceDependencies.value.join.map(_.flatten) }.value,
       sourceDirectories := unmanagedSourceDirectories.value ++ managedSourceDirectories.value,
       sources := unmanagedSources.value ++ managedSources.value
     ))

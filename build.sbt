@@ -4,7 +4,7 @@ organization := "com.typesafe.sbt"
 
 name := "sbt-js-engine"
 
-version := "1.0.0-SNAPSHOT"
+version := "1.0.0"
 
 scalaVersion := "2.10.4"
 
@@ -16,13 +16,13 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.typesafe" %% "jse" % "1.0.0-RC2",
-  "com.typesafe" %% "npm" % "1.0.0-RC2",
+  "com.typesafe" %% "jse" % "1.0.0",
+  "com.typesafe" %% "npm" % "1.0.0",
   "org.specs2" %% "specs2" % "2.3.11" % "test",
   "junit" % "junit" % "4.11" % "test"
 )
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.0.0-RC3")
+addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.0.0")
 
 scriptedSettings
 

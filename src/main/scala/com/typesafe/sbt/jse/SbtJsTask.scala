@@ -154,12 +154,6 @@ object SbtJsTask extends AutoPlugin {
 
   private def FileOpResultMappings(s: (File, OpResult)*): FileOpResultMappings = Map(s: _*)
 
-  private type FileWrittenAndProblems = (Boolean, Seq[File], Seq[Problem])
-
-  private def FilesWrittenAndProblems(fullRun: Boolean): FileWrittenAndProblems = FilesWrittenAndProblems(fullRun, Nil, Nil)
-
-  private def FilesWrittenAndProblems(filesWrittenAndProblems: (Boolean, Seq[File], Seq[Problem])): FileWrittenAndProblems = filesWrittenAndProblems
-
 
   private def executeJsOnEngine(engine: ActorRef, shellSource: File, args: Seq[String],
                                 stderrSink: String => Unit, stdoutSink: String => Unit)
@@ -274,10 +268,8 @@ object SbtJsTask extends AutoPlugin {
     val logger: Logger = state.value.log
 
     implicit val opInputHasher = (fileInputHasher in task in config).value
-    val results: FileWrittenAndProblems = incremental.runIncremental((streams in config).value.cacheDirectory / "run", sources) {
+    val results: (Set[File], Seq[Problem]) = incremental.syncIncremental((streams in config).value.cacheDirectory / "run", sources) {
       modifiedSources: Seq[File] =>
-
-        val fullRun = modifiedSources.size == sources.size
 
         if (modifiedSources.size > 0) {
 
@@ -311,36 +303,26 @@ object SbtJsTask extends AutoPlugin {
           val pendingResults = Future.sequence(resultBatches)
           val completedResults = Await.result(pendingResults, (timeoutPerSource in task in config).value * modifiedSources.size)
 
-          completedResults.foldLeft((FileOpResultMappings(), FilesWrittenAndProblems(fullRun))) {
+          completedResults.foldLeft((FileOpResultMappings(), Seq[Problem]())) {
             (allCompletedResults, completedResult) =>
 
-              val (prevOpResults, (_, prevFilesWritten, prevProblems)) = allCompletedResults
+              val (prevOpResults, prevProblems) = allCompletedResults
 
               val (nextOpResults, nextProblems) = completedResult
-              val nextFilesWritten: Seq[File] = nextOpResults.values.map {
-                case opSuccess: OpSuccess => opSuccess.filesWritten
-                case _ => Nil
-              }.flatten.toSeq
 
-              (
-                prevOpResults ++ nextOpResults,
-                FilesWrittenAndProblems(fullRun, prevFilesWritten ++ nextFilesWritten, prevProblems ++ nextProblems)
-                )
+              (prevOpResults ++ nextOpResults, prevProblems ++ nextProblems)
           }
 
         } else {
-          (FileOpResultMappings(), FilesWrittenAndProblems(fullRun))
+          (FileOpResultMappings(), Nil)
         }
     }
 
-    val (fullRun, filesWritten, problems) = results
+    val (filesWritten, problems) = results
 
     CompileProblems.report((reporter in task).value, problems)
 
-    import Cache._
-    val previousMappings = if (fullRun) Nil else (task in config).previous.getOrElse(Nil)
-    val untouchedMappings = previousMappings.toSet -- filesWritten
-    untouchedMappings.filter(_.exists).toSeq ++ filesWritten
+    filesWritten.toSeq
   }
 
   private def addUnscopedJsSourceFileTasks(sourceFileTask: TaskKey[Seq[File]]): Seq[Setting[_]] = {

@@ -22,7 +22,7 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.11" % "test"
 )
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.0.1")
+addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.0.2")
 
 scriptedSettings
 

@@ -28,7 +28,7 @@ object JsTaskImport {
 
   object JsTaskKeys {
 
-    val fileInputHasher = TaskKey[OpInputHasher[File]]("jstask-file-input-hasher", "A function that constitues a change for a given file.")
+    val fileInputHasher = TaskKey[OpInputHasher[File]]("jstask-file-input-hasher", "A function that hashes a given file.")
     val jsOptions = TaskKey[String]("jstask-js-options", "The JSON options to be passed to the task.")
     val taskMessage = SettingKey[String]("jstask-message", "The message to output for a task")
     val shellFile = SettingKey[URL]("jstask-shell-url", "The url of the file to perform a given task.")

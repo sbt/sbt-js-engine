@@ -21,7 +21,7 @@ Option              | Description
 command             | The filesystem location of the command to execute. Commands such as "node" default to being known to your path. However there path can be supplied here."
 engineType          | The type of engine to use i.e. CommonNode, Node, PhantomJs, Rhino or Trireme. The default is Trireme.
 parallelism         | The number of parallel tasks for the JavaScript engine. Defaults to the # of available processors + 1 to keep things busy.
-npmTimeout          | The maximum number of seconds to for npm to do its thing.
+npmTimeout          | The maximum amount of time to wait for npm to do its thing.
 
 The following sbt code illustrates how the engine type can be set to Node:
 

@@ -33,7 +33,7 @@ object JsTaskImport {
     val taskMessage = SettingKey[String]("jstask-message", "The message to output for a task")
     val shellFile = SettingKey[URL]("jstask-shell-url", "The url of the file to perform a given task.")
     val shellSource = TaskKey[File]("jstask-shell-source", "The target location of the js shell script to use.")
-    val timeoutPerSource = SettingKey[FiniteDuration]("jstask-timeout-per-source", "The maximum number of seconds to wait per source file processed by the JS task.")
+    val timeoutPerSource = SettingKey[FiniteDuration]("jstask-timeout-per-source", "The maximum amount of time to wait per source file processed by the JS task.")
     val sourceDependencies = SettingKey[Seq[TaskKey[Seq[File]]]]("jstask-source-dependencies", "Source dependencies between source file tasks.")
   }
 
@@ -77,7 +77,7 @@ object SbtJsTask extends AutoPlugin {
 
   override def projectSettings = Seq(
     jsOptions := "{}",
-    timeoutPerSource := 2.minutes
+    timeoutPerSource := 2.hours
   )
 
 

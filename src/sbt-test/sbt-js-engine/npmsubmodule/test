@@ -1,0 +1,10 @@
+# There should be no node modules as there is no package.json visible.
+> web-assets:webNodeModules
+$ exists node_modules/glob
+-$ exists subproject/node_modules/mkdirp
+
+> subproject/web-assets:webNodeModules
+$ exists node_modules/glob
+-$ exists node_modules/mkdirp
+$ exists subproject/node_modules/mkdirp
+-$ exists subproject/node_modules/glob

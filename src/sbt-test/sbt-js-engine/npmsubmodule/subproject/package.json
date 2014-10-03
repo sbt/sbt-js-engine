@@ -1,0 +1,6 @@
+{
+  "name": "subproject-stuff",
+  "devDependencies": {
+    "mkdirp": "~0.5.0"
+  }
+}

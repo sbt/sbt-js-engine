@@ -80,7 +80,7 @@ object SbtJsEngine extends AutoPlugin {
                 val npm = new Npm(engine, (webJarsNodeModulesDirectory in Plugin).value / "npm" / "lib" / "npm.js")
                 import ExecutionContext.Implicits.global
                 for (
-                  result <- npm.update()
+                  result <- npm.update(false, Seq("--prefix", baseDirectory.value.toString()))
                 ) yield {
                   // TODO: We need to stream the output and error channels. The js engine needs to change in this regard so that the
                   // stdio sink and sources can be exposed through the NPM library and then adopted here.

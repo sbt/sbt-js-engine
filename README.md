@@ -1,6 +1,24 @@
 sbt-js-engine
 =============
 
+ATTENTION: This is a fork to make sbt-js-engine correctly resolve package.json in sub modules.
+
+https://github.com/sbt/sbt-js-engine/pull/18
+
+Use like this
+
+```scala
+resolvers += Resolver.url(
+  "Peter Kolloch's sbt-plugins",
+  url("http://dl.bintray.com/kolloch/sbt-plugins/"))(
+    Resolver.ivyStylePatterns)
+
+addSbtPlugin("com.typesafe.sbt" % "sbt-js-engine" % "1.0.2-submodule-npm-fix")
+
+```
+
+The original documentation follows:
+
 [![Build Status](https://api.travis-ci.org/sbt/sbt-js-engine.png?branch=master)](https://travis-ci.org/sbt/sbt-js-engine)
 
 This plugin mainly provides support for the authoring of sbt plugins that require js-engine.

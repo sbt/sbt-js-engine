@@ -4,8 +4,6 @@ organization := "com.typesafe.sbt"
 
 name := "sbt-js-engine"
 
-version := "1.0.2-SNAPSHOT"
-
 scalaVersion := "2.10.4"
 
 resolvers ++= Seq(
@@ -27,10 +25,3 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.0.2")
 scriptedSettings
 
 scriptedLaunchOpts <+= version apply { v => s"-Dproject.version=$v" }
-
-publishMavenStyle := false
-
-publishTo := {
-  if (isSnapshot.value) Some(Classpaths.sbtPluginSnapshots)
-  else Some(Classpaths.sbtPluginReleases)
-}

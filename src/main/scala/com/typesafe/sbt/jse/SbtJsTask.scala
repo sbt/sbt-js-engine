@@ -121,9 +121,9 @@ object SbtJsTask extends AutoPlugin {
         case o: JsObject => new LineBasedProblem(
           o.fields.get("message").fold("unknown message")(_.convertTo[String]),
           o.fields.get("severity").fold(Severity.Error)(v =>
-            v.toString() match {
-              case "info" => Severity.Info
-              case "warn" => Severity.Warn
+            v match {
+              case JsString("info") => Severity.Info
+              case JsString("warn") => Severity.Warn
               case _ => Severity.Error
             }),
           o.fields.get("lineNumber").fold(0)(_.convertTo[Int]),

@@ -1,12 +1,13 @@
 package com.typesafe.sbt.jse
 
+import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
 import spray.json.JsonParser
 import java.io.File
 import xsbti.Severity
 import com.typesafe.sbt.web.incremental.OpSuccess
 
-class SbtJsTaskPluginSpec extends Specification {
+class SbtJsTaskPluginSpec extends Specification with ScalaCheck {
 
   "the jstask" should {
     "Translate json OpResult/Problems properly" in {
@@ -50,6 +51,21 @@ class SbtJsTaskPluginSpec extends Specification {
       opSuccess.filesRead.size must_== 1
       opSuccess.filesWritten.size must_== 0
       problemResultsPair.results(0).source must_== new File("src/main/assets/js/a.js")
+    }
+
+    "Write a ProblemResultsPair as json then read it and recover the original value" in {
+      import SbtJsTask.JsTaskProtocol.{ProblemResultsPair, problemResultPairFormat}
+      import gens._
+      import helpers._
+
+      prop { (doc: ProblemResultsPair) =>
+        val roundTrip = problemResultPairFormat.read(problemResultPairFormat.write(doc))
+        roundTrip must beTypedEqualTo(doc, areEqualProblemResultsPairs).setMessage(
+          s"""|The original
+              |${stringifyProblemResultsPair(doc)}
+              |has changed after a serialization round trip to
+              |${stringifyProblemResultsPair(roundTrip)}""".stripMargin)
+      }
     }
   }
 

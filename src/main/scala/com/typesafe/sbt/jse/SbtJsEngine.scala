@@ -17,7 +17,7 @@ object JsEngineImport {
   object JsEngineKeys {
 
     object EngineType extends Enumeration {
-      val CommonNode, Node, PhantomJs, Rhino, Trireme = Value
+      val CommonNode, Node, PhantomJs, Javax, Rhino, Trireme = Value
     }
 
     val command = SettingKey[Option[File]]("jse-command", "An optional path to the command used to invoke the engine.")
@@ -54,6 +54,7 @@ object SbtJsEngine extends AutoPlugin {
       case EngineType.CommonNode => CommonNode.props(command, stdEnvironment = env)
       case EngineType.Node => Node.props(command, stdEnvironment = env)
       case EngineType.PhantomJs => PhantomJs.props(command)
+      case EngineType.Javax => JavaxEngine.props()
       case EngineType.Rhino => Rhino.props()
       case EngineType.Trireme => Trireme.props(stdEnvironment = env)
     }

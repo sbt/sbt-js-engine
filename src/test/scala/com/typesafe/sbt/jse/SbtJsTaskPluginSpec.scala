@@ -1,16 +1,12 @@
 package com.typesafe.sbt.jse
 
-import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
 import org.specs2.mutable.Specification
-import org.specs2.time.NoTimeConversions
 import spray.json.JsonParser
 import java.io.File
 import xsbti.Severity
 import com.typesafe.sbt.web.incremental.OpSuccess
 
-@RunWith(classOf[JUnitRunner])
-class SbtJsTaskPluginSpec extends Specification with NoTimeConversions {
+class SbtJsTaskPluginSpec extends Specification {
 
   "the jstask" should {
     "Translate json OpResult/Problems properly" in {

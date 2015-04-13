@@ -212,7 +212,7 @@ object SbtJsTask extends AutoPlugin {
     import ExecutionContext.Implicits.global
 
     val args = immutable.Seq(
-      JsArray(sourceFileMappings.map(x => JsArray(JsString(x._1.getCanonicalPath), JsString(x._2))).toList).toString(),
+      JsArray(sourceFileMappings.map(x => JsArray(JsString(x._1.getCanonicalPath), JsString(x._2))).toVector).toString(),
       target.getAbsolutePath,
       options
     )

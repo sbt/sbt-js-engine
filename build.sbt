@@ -7,19 +7,16 @@ description := "sbt js engine plugin"
 scalaVersion := "2.10.4"
 sbtPlugin := true
 
-// Delete once upgraded to npm 1.1.0
-resolvers += "Typesafe Releases Repository" at "https://repo.typesafe.com/typesafe/releases/"
-
 libraryDependencies ++= Seq(
   "com.typesafe" %% "jse" % "1.1.0",
-  "com.typesafe" %% "npm" % "1.0.0",
+  "com.typesafe" %% "npm" % "1.1.0",
   "org.specs2" %% "specs2-core" % "3.4" % "test",
   "junit" % "junit" % "4.11" % "test"
 )
 // Required by specs2 to get scalaz-stream
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.1.1")
+addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.2.0")
 
 scriptedSettings
 scriptedLaunchOpts <+= version apply { v => s"-Dproject.version=$v" }

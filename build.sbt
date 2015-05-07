@@ -1,4 +1,4 @@
-import bintray.Keys._
+lazy val `sbt-js-engine` = project in file(".")
 
 organization := "com.typesafe.sbt"
 name := "sbt-js-engine"
@@ -22,10 +22,11 @@ scriptedSettings
 scriptedLaunchOpts <+= version apply { v => s"-Dproject.version=$v" }
 
 // Publish settings
-bintrayPublishSettings
 publishMavenStyle := false
-bintrayOrganization in bintray := Some("sbt-web")
-repository in bintray := "sbt-plugin-releases"
+bintrayOrganization := Some("sbt-web")
+bintrayRepository := "sbt-plugin-releases"
+bintrayPackage := "sbt-js-engine"
+bintrayReleaseOnPublish := false
 homepage := Some(url("https://github.com/sbt/sbt-js-engine"))
 licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
 
@@ -33,3 +34,11 @@ licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.
 releaseSettings
 ReleaseKeys.publishArtifactsAction := PgpKeys.publishSigned.value
 ReleaseKeys.tagName := (version in ThisBuild).value
+ReleaseKeys.releaseProcess ~= { existing =>
+  import sbtrelease._
+  // Insert just before the git push task, which is last
+  existing.dropRight(1) ++ Seq(
+    ReleaseStep(action = releaseTask(bintrayRelease in `sbt-js-engine`)),
+    existing.last
+  )
+}

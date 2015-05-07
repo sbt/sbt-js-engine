@@ -34,11 +34,21 @@ licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.
 releaseSettings
 ReleaseKeys.publishArtifactsAction := PgpKeys.publishSigned.value
 ReleaseKeys.tagName := (version in ThisBuild).value
-ReleaseKeys.releaseProcess ~= { existing =>
+ReleaseKeys.releaseProcess := {
   import sbtrelease._
-  // Insert just before the git push task, which is last
-  existing.dropRight(1) ++ Seq(
+  import ReleaseStateTransformations._
+
+  Seq[ReleaseStep](
+    checkSnapshotDependencies,
+    inquireVersions,
+    runTest,
+    setReleaseVersion,
+    commitReleaseVersion,
+    tagRelease,
+    publishArtifacts,
     ReleaseStep(action = releaseTask(bintrayRelease in `sbt-js-engine`)),
-    existing.last
+    setNextVersion,
+    commitNextVersion,
+    pushChanges
   )
 }

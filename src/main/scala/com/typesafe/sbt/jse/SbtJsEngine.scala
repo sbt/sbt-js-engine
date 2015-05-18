@@ -17,7 +17,12 @@ object JsEngineImport {
   object JsEngineKeys {
 
     object EngineType extends Enumeration {
-      val CommonNode, Node, PhantomJs, Javax, Rhino, Trireme = Value
+      val CommonNode, Node, PhantomJs, Javax, Rhino, Trireme,
+      /**
+       * Auto detect the best available engine to use for most common tasks - this will currently select node if
+       * available, otherwise it will fall back to trireme
+       */
+      AutoDetect = Value
     }
 
     val command = SettingKey[Option[File]]("jse-command", "An optional path to the command used to invoke the engine.")
@@ -57,11 +62,25 @@ object SbtJsEngine extends AutoPlugin {
       case EngineType.Javax => JavaxEngine.props()
       case EngineType.Rhino => Rhino.props()
       case EngineType.Trireme => Trireme.props(stdEnvironment = env)
+      case EngineType.AutoDetect => if (autoDetectNode) {
+        Node.props(command, stdEnvironment = env)
+      } else {
+        Trireme.props(stdEnvironment = env)
+      }
     }
   }
 
   private val NodeModules = "node_modules"
   private val PackageJson = "package.json"
+
+
+  private lazy val autoDetectNode: Boolean = {
+    val nodeExists = Try("node --version".!!).isSuccess
+    if (!nodeExists) {
+      println("Warning: node.js detection failed, sbt will use the Rhino based Trireme JavaScript engine instead to run JavaScript assets compilation, which in some cases may be orders of magnitude slower than using node.js.")
+    }
+    nodeExists
+  }
 
   private val jsEngineUnscopedSettings: Seq[Setting[_]] = Seq(
     npmNodeModules := Def.task {
@@ -107,7 +126,7 @@ object SbtJsEngine extends AutoPlugin {
     nodeModuleDirectories += baseDirectory.value / NodeModules
   )
 
-  private val defaultEngineType = EngineType.Trireme
+  private val defaultEngineType = EngineType.AutoDetect
 
   override def projectSettings: Seq[Setting[_]] = Seq(
     engineType := sys.props.get("sbt.jse.engineType").fold(defaultEngineType)(engineTypeStr =>

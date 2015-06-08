@@ -1,0 +1,8 @@
+{
+  "name": "somename",
+  "version": "1.0.0",
+  "dependencies": {
+    "console-browserify": "0.1.6",
+    "jsdom": "1.0.3"
+  }
+}

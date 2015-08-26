@@ -103,15 +103,27 @@ object SbtJsTask extends AutoPlugin {
     implicit val opSuccessFormat = jsonFormat2(OpSuccess)
 
     implicit object LineBasedProblemFormat extends JsonFormat[LineBasedProblem] {
-      def write(p: LineBasedProblem) = JsString("unimplemented")
+      def write(p: LineBasedProblem) = JsObject(
+        "message" -> JsString(p.message),
+        "severity" -> {
+          p.severity match {
+            case Severity.Info => JsString("info")
+            case Severity.Warn => JsString("warn")
+            case Severity.Error => JsString("error")
+          }},
+        "lineNumber" -> JsNumber(p.position.line.get),
+        "characterOffset" -> JsNumber(p.position.offset.get),
+        "lineContent" -> JsString(p.position.lineContent),
+        "source" -> FileFormat.write(p.position.sourceFile.get)
+      )
 
       def read(value: JsValue) = value match {
         case o: JsObject => new LineBasedProblem(
           o.fields.get("message").fold("unknown message")(_.convertTo[String]),
           o.fields.get("severity").fold(Severity.Error)(v =>
-            v.toString() match {
-              case "info" => Severity.Info
-              case "warn" => Severity.Warn
+            v match {
+              case JsString("info") => Severity.Info
+              case JsString("warn") => Severity.Warn
               case _ => Severity.Error
             }),
           o.fields.get("lineNumber").fold(0)(_.convertTo[Int]),
@@ -126,7 +138,10 @@ object SbtJsTask extends AutoPlugin {
 
     implicit object OpResultFormat extends JsonFormat[OpResult] {
 
-      def write(r: OpResult) = JsString("unimplemented")
+      def write(r: OpResult) = r match {
+        case OpFailure => JsNull
+        case s: OpSuccess => opSuccessFormat.write(s)
+      }
 
       def read(value: JsValue) = value match {
         case o: JsObject => opSuccessFormat.read(o)

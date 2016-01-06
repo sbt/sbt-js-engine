@@ -62,18 +62,23 @@ object SbtJsTask extends AutoPlugin {
     resourceManaged := target.value / moduleName.value
   )
 
-  val jsTaskSpecificUnscopedSettings =
+  val jsTaskSpecificUnscopedProjectSettings =
     inConfig(Assets)(jsTaskSpecificUnscopedConfigSettings) ++
-      inConfig(TestAssets)(jsTaskSpecificUnscopedConfigSettings) ++
-      Seq(
-        shellSource := {
-          SbtWeb.copyResourceTo(
-            (target in Plugin).value / moduleName.value,
-            shellFile.value,
-            streams.value.cacheDirectory / "copy-resource"
-          )
-        }
-      )
+      inConfig(TestAssets)(jsTaskSpecificUnscopedConfigSettings)
+
+  val jsTaskSpecificUnscopedBuildSettings: Seq[Setting[_]] =
+    Seq(
+      shellSource := {
+        SbtWeb.copyResourceTo(
+          (target in Plugin).value / moduleName.value,
+          shellFile.value,
+          streams.value.cacheDirectory / "copy-resource"
+        )
+      }
+    )
+
+  @deprecated("Add jsTaskSpecificUnscopedProjectSettings to AutoPlugin.projectSettings and jsTaskSpecificUnscopedBuildSettings to AutoPlugin.buildSettings", "1.2.0")
+  val jsTaskSpecificUnscopedSettings = jsTaskSpecificUnscopedProjectSettings ++ jsTaskSpecificUnscopedBuildSettings
 
   override def projectSettings = Seq(
     jsOptions := "{}",

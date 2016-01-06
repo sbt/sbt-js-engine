@@ -12,5 +12,5 @@ libraryDependencies ++= Seq(
 // Required by specs2 to get scalaz-stream
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
-addSbtWeb("1.2.1")
+addSbtWeb("1.2.3")
 

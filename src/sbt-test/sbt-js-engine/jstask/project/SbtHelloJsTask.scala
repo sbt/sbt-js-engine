@@ -43,18 +43,22 @@ object SbtHelloJsTask extends AutoPlugin {
     ).toString()
   )
 
+  override def buildSettings = inTask(hello)(
+    SbtJsTask.jsTaskSpecificUnscopedBuildSettings ++ Seq(
+      moduleName := "hello",
+      shellFile := SbtHelloJsTask.getClass.getClassLoader.getResource("hello-shell.js")
+    )
+  )
+
   override def projectSettings = Seq(
     compress := false,
     fail := false
   ) ++
     inTask(hello)(
-      SbtJsTask.jsTaskSpecificUnscopedSettings ++
+      SbtJsTask.jsTaskSpecificUnscopedProjectSettings ++
         inConfig(Assets)(helloJsTaskUnscopedSettings) ++
         inConfig(TestAssets)(helloJsTaskUnscopedSettings) ++
         Seq(
-          moduleName := "hello",
-          shellFile := SbtHelloJsTask.getClass.getClassLoader.getResource("hello-shell.js"),
-
           taskMessage in Assets := "Saying hello",
           taskMessage in TestAssets := "Saying hello test"
 

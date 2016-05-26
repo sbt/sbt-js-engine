@@ -19,7 +19,7 @@ The following options are provided:
 Option              | Description
 --------------------|------------
 command             | The filesystem location of the command to execute. Commands such as "node" default to being known to your path. However there path can be supplied here."
-engineType          | The type of engine to use i.e. CommonNode, Node, PhantomJs, Rhino or Trireme. The default is Trireme.
+engineType          | The type of engine to use i.e. CommonNode, Node, PhantomJs, Rhino, Trireme, or AutoDetect. The default is AutoDetect, which uses Node if installed or otherwise falls back to Trireme.
 parallelism         | The number of parallel tasks for the JavaScript engine. Defaults to the # of available processors + 1 to keep things busy.
 npmTimeout          | The maximum amount of time to wait for npm to do its thing.
 

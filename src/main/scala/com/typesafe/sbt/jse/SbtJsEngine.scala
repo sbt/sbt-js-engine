@@ -97,6 +97,17 @@ object SbtJsEngine extends AutoPlugin {
                 val nodePathEnv = LocalEngine.nodePathEnv(immutable.Seq(webJarsNodeModulesPath))
                 val engineProps = engineTypeToProps(engineType.value, command.value, nodePathEnv)
                 val engine = arf.actorOf(engineProps)
+
+                // Hack - ensure that that node-gyp is executable. Since the JDK doesn't support maintaining file
+                // permissions when unzipping (because file permissions are not in the zip spec), node-gyp will not
+                // run, which means things that require it to be there and executable, such as jsdom, will fail to
+                // install.
+                val npmDir = (webJarsNodeModulesDirectory in Plugin).value / "npm"
+                val nodeGyp = npmDir / "bin" / "node-gyp-bin" / "node-gyp"
+                if (nodeGyp.exists && !nodeGyp.canExecute) {
+                  nodeGyp.setExecutable(true)
+                }
+
                 val npm = new Npm(engine, (webJarsNodeModulesDirectory in Plugin).value / "npm" / "lib" / "npm.js")
                 import ExecutionContext.Implicits.global
                 for (

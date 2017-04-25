@@ -53,4 +53,4 @@ interchangeably with sbt-js-engine in place.
 
 > Note that the npm functionality requires JDK 7 when running Trireme given the additional file system support required. If JDK 6 is required then use Node as the engine.
 
-&copy; Typesafe Inc., 2014
+&copy; Lightbend Inc., 2014

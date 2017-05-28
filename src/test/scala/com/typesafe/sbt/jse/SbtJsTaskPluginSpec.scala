@@ -60,11 +60,7 @@ class SbtJsTaskPluginSpec extends Specification with ScalaCheck {
 
       prop { (doc: ProblemResultsPair) =>
         val roundTrip = problemResultPairFormat.read(problemResultPairFormat.write(doc))
-        roundTrip must beTypedEqualTo(doc, areEqualProblemResultsPairs).setMessage(
-          s"""|The original
-              |${stringifyProblemResultsPair(doc)}
-              |has changed after a serialization round trip to
-              |${stringifyProblemResultsPair(roundTrip)}""".stripMargin)
+        roundTrip must beTypedEqualTo(doc)
       }
     }
   }

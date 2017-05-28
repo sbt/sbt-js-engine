@@ -29,7 +29,7 @@ object gens {
     for {
       depth <- choose(0, 20)
       directories <- listOfN(depth, directoryNameGen)
-    } yield new File(directories.mkString(File.separator, File.separator, ""))
+    } yield new File(directories.mkString(File.separator, File.separator, "")).getCanonicalFile
 
   val opResultGen: Gen[OpResult] = oneOf(const(OpFailure), resultOf(OpSuccess.apply _))
 

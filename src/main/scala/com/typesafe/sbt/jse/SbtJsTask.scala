@@ -58,7 +58,10 @@ object SbtJsTask extends AutoPlugin {
   import JsTaskKeys._
 
   val jsTaskSpecificUnscopedConfigSettings = Seq(
-    fileInputHasher := OpInputHasher[File](f => OpInputHash.hashString(f.getAbsolutePath + "|" + jsOptions.value)),
+    fileInputHasher := {
+      val options = jsOptions.value
+      OpInputHasher[File](f => OpInputHash.hashString(f.getAbsolutePath + "|" + options))
+    },
     resourceManaged := target.value / moduleName.value
   )
 
@@ -285,7 +288,15 @@ object SbtJsTask extends AutoPlugin {
 
     val sources = ((Keys.sources in task in config).value ** ((includeFilter in task in config).value -- (excludeFilter in task in config).value)).get.map(f => new File(f.getCanonicalPath))
 
-    val logger: Logger = state.value.log
+    val logger: Logger = streams.value.log
+    val taskMsg = (taskMessage in task in config).value
+    val taskParallelism = (parallelism in task).value
+    val currentState = state.value
+    val taskTimeout = (timeoutPerSource in task in config).value
+    val taskShellSource = (shellSource in task in config).value
+    val taskSourceDirectories = (sourceDirectories in task in config).value
+    val taskResources = (resourceManaged in task in config).value
+    val options = (jsOptions in task in config).value
 
     implicit val opInputHasher = (fileInputHasher in task in config).value
     val results: (Set[File], Seq[Problem]) = incremental.syncIncremental((streams in config).value.cacheDirectory / "run", sources) {
@@ -293,44 +304,38 @@ object SbtJsTask extends AutoPlugin {
 
         if (modifiedSources.size > 0) {
 
-          streams.value.log.info(s"${(taskMessage in task in config).value} on ${
-            modifiedSources.size
-          } source(s)")
+          logger.info(s"$taskMsg on ${modifiedSources.size} source(s)")
 
-          val resultBatches: Seq[Future[(FileOpResultMappings, Seq[Problem])]] =
-            try {
-              val sourceBatches = (modifiedSources grouped Math.max(modifiedSources.size / (parallelism in task).value, 1)).toSeq
-              sourceBatches.map {
-                sourceBatch =>
-                  withActorRefFactory(state.value, this.getClass.getName) {
-                    arf =>
-                      val engine = arf.actorOf(engineProps)
-                      implicit val timeout = Timeout((timeoutPerSource in task in config).value * modifiedSources.size)
-                      executeSourceFilesJs(
-                        engine,
-                        (shellSource in task in config).value,
-                        sourceBatch.pair(relativeTo((sourceDirectories in task in config).value)),
-                        (resourceManaged in task in config).value,
-                        (jsOptions in task in config).value,
-                        m => logger.error(m),
-                        m => logger.info(m)
-                      )
-                  }
+          val resultBatches: Seq[Future[(FileOpResultMappings, Seq[Problem])]] = {
+            val sourceBatches = (modifiedSources grouped Math.max(modifiedSources.size / taskParallelism, 1)).toSeq
+            sourceBatches.map { sourceBatch =>
+              withActorRefFactory(currentState, this.getClass.getName) { arf =>
+                val engine = arf.actorOf(engineProps)
+                implicit val timeout = Timeout(taskTimeout * modifiedSources.size)
+                executeSourceFilesJs(
+                  engine,
+                  taskShellSource,
+                  sourceBatch.pair(Path.relativeTo(taskSourceDirectories)),
+                  taskResources,
+                  options,
+                  m => logger.error(m),
+                  m => logger.info(m)
+                )
               }
             }
+          }
 
           import scala.concurrent.ExecutionContext.Implicits.global
           val pendingResults = Future.sequence(resultBatches)
-          val completedResults = Await.result(pendingResults, (timeoutPerSource in task in config).value * modifiedSources.size)
+          val completedResults = Await.result(pendingResults, taskTimeout * modifiedSources.size)
 
-          completedResults.foldLeft((FileOpResultMappings(), Seq[Problem]())) {
-            (allCompletedResults, completedResult) =>
+          completedResults.foldLeft((FileOpResultMappings(), Seq[Problem]())) { (allCompletedResults, completedResult) =>
 
-              val (prevOpResults, prevProblems) = allCompletedResults
+            val (prevOpResults, prevProblems) = allCompletedResults
 
-              val (nextOpResults, nextProblems) = completedResult
+            val (nextOpResults, nextProblems) = completedResult
 
-              (prevOpResults ++ nextOpResults, prevProblems ++ nextProblems)
+            (prevOpResults ++ nextOpResults, prevProblems ++ nextProblems)
           }
 
         } else {
@@ -347,7 +352,7 @@ object SbtJsTask extends AutoPlugin {
 
   private def addUnscopedJsSourceFileTasks(sourceFileTask: TaskKey[Seq[File]]): Seq[Setting[_]] = {
     Seq(
-      resourceGenerators <+= sourceFileTask,
+      resourceGenerators += sourceFileTask.taskValue,
       managedResourceDirectories += (resourceManaged in sourceFileTask).value
     ) ++ inTask(sourceFileTask)(Seq(
       managedSourceDirectories ++= Def.settingDyn { sourceDependencies.value.map(resourceManaged in _).join }.value,

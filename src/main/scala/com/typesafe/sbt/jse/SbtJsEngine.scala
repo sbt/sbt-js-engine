@@ -3,13 +3,17 @@ package com.typesafe.sbt.jse
 import sbt._
 import sbt.Keys._
 import com.typesafe.jse._
+
 import scala.collection.immutable
 import com.typesafe.npm.Npm
 import akka.util.Timeout
-import scala.concurrent.{ExecutionContext, Await}
+
+import scala.concurrent.{Await, ExecutionContext}
 import com.typesafe.jse.Node
 import com.typesafe.sbt.web.SbtWeb
+
 import scala.concurrent.duration._
+import scala.sys.process.Process
 import scala.util.Try
 
 object JsEngineImport {
@@ -75,7 +79,7 @@ object SbtJsEngine extends AutoPlugin {
 
 
   private lazy val autoDetectNode: Boolean = {
-    val nodeExists = Try("node --version".!!).isSuccess
+    val nodeExists = Try(Process("node --version").!!).isSuccess
     if (!nodeExists) {
       println("Warning: node.js detection failed, sbt will use the Rhino based Trireme JavaScript engine instead to run JavaScript assets compilation, which in some cases may be orders of magnitude slower than using node.js.")
     }
@@ -87,24 +91,27 @@ object SbtJsEngine extends AutoPlugin {
       val npmDirectory = baseDirectory.value / NodeModules
       val npmPackageJson = baseDirectory.value / PackageJson
       val cacheDirectory = streams.value.cacheDirectory / "npm"
+      implicit val timeout = Timeout(npmTimeout.value)
+      val webJarsNodeModulesPath = (webJarsNodeModulesDirectory in Plugin).value.getCanonicalPath
+      val nodePathEnv = LocalEngine.nodePathEnv(immutable.Seq(webJarsNodeModulesPath))
+      val engineProps = engineTypeToProps(engineType.value, command.value, nodePathEnv)
+      val nodeModulesDirectory = (webJarsNodeModulesDirectory in Plugin).value
+      val logger = streams.value.log
+      val currentState = state.value
+
       val runUpdate = FileFunction.cached(cacheDirectory, FilesInfo.hash) {
         _ =>
           if (npmPackageJson.exists) {
-            implicit val timeout = Timeout(npmTimeout.value)
-            val pendingExitValue = SbtWeb.withActorRefFactory(state.value, this.getClass.getName) {
+            val pendingExitValue = SbtWeb.withActorRefFactory(currentState, this.getClass.getName) {
               arf =>
-                val webJarsNodeModulesPath = (webJarsNodeModulesDirectory in Plugin).value.getCanonicalPath
-                val nodePathEnv = LocalEngine.nodePathEnv(immutable.Seq(webJarsNodeModulesPath))
-                val engineProps = engineTypeToProps(engineType.value, command.value, nodePathEnv)
                 val engine = arf.actorOf(engineProps)
-                val npm = new Npm(engine, (webJarsNodeModulesDirectory in Plugin).value / "npm" / "lib" / "npm.js")
+                val npm = new Npm(engine, nodeModulesDirectory / "npm" / "lib" / "npm.js")
                 import ExecutionContext.Implicits.global
                 for (
                   result <- npm.update(global = false, Seq("--prefix", baseDirectory.value.getPath))
                 ) yield {
                   // TODO: We need to stream the output and error channels. The js engine needs to change in this regard so that the
                   // stdio sink and sources can be exposed through the NPM library and then adopted here.
-                  val logger = streams.value.log
                   new String(result.output.toArray, "UTF-8").split("\n").foreach(s => logger.info(s))
                   new String(result.error.toArray, "UTF-8").split("\n").foreach(s => if (result.exitValue == 0) logger.info(s) else logger.error(s))
                   result.exitValue
@@ -113,7 +120,7 @@ object SbtJsEngine extends AutoPlugin {
             if (Await.result(pendingExitValue, timeout.duration) != 0) {
               sys.error("Problems with NPM resolution. Aborting build.")
             }
-            npmDirectory.***.get.toSet
+            npmDirectory.**(AllPassFilter).get.toSet
           } else {
             IO.delete(npmDirectory)
             Set.empty
@@ -122,7 +129,7 @@ object SbtJsEngine extends AutoPlugin {
       runUpdate(Set(npmPackageJson)).toSeq
     }.dependsOn(webJarsNodeModules in Plugin).value,
 
-    nodeModuleGenerators <+= npmNodeModules,
+    nodeModuleGenerators += npmNodeModules.taskValue,
     nodeModuleDirectories += baseDirectory.value / NodeModules
   )
 

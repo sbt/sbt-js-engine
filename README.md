@@ -14,6 +14,10 @@ type can optionally produce managed resources.
 The other types of plugin are ones that wish to just invoke the js engine and so there are helper functions to do
 that.
 
+Enable this plugin in your project by adding it to your project's `plugins.sbt` file:
+
+    addSbtPlugin("com.typesafe.sbt" % "sbt-js-engine" % "1.1.4")
+
 The following options are provided:
 
 Option              | Description

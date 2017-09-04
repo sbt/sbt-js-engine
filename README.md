@@ -1,7 +1,7 @@
 sbt-js-engine
 =============
 
-[![Build Status](https://api.travis-ci.org/sbt/sbt-js-engine.png?branch=master)](https://travis-ci.org/sbt/sbt-js-engine)
+[![Build Status](https://api.travis-ci.org/sbt/sbt-js-engine.png?branch=master)](https://travis-ci.org/sbt/sbt-js-engine) [![Download](https://api.bintray.com/packages/sbt-web/sbt-plugin-releases/sbt-js-engine/images/download.svg)](https://bintray.com/sbt-web/sbt-plugin-releases/sbt-js-engine/_latestVersion)
 
 This plugin mainly provides support for the authoring of sbt plugins that require js-engine.
 
@@ -16,7 +16,7 @@ that.
 
 Enable this plugin in your project by adding it to your project's `plugins.sbt` file:
 
-    addSbtPlugin("com.typesafe.sbt" % "sbt-js-engine" % "1.1.4")
+    addSbtPlugin("com.typesafe.sbt" % "sbt-js-engine" % "1.2.2")
 
 The following options are provided:
 

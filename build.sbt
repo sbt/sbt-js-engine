@@ -10,4 +10,4 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.12" % "test"
 )
 
-addSbtWeb("1.4.2")
+addSbtWeb("1.4.3")

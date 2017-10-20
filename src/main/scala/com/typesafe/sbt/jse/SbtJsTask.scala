@@ -400,6 +400,8 @@ object SbtJsTask extends AutoPlugin {
    * @param shellSource The script to execute.
    * @param args The arguments to pass to the script.
    * @param timeout The maximum amount of time to wait for the script to finish.
+   * @param stderrSink A callback to handle the sctipr's error output.
+   * @param stdoutSink A callback to handle the sctipr's normal output.
    * @return A JSON status object if one was sent by the script.  A script can send a JSON status object by, as the
    *         last thing it does, sending a DLE character (0x10) followed by some JSON to std out.
    */
@@ -410,7 +412,9 @@ object SbtJsTask extends AutoPlugin {
                  nodeModules: Seq[String],
                  shellSource: File,
                  args: Seq[String],
-                 timeout: FiniteDuration
+                 timeout: FiniteDuration,
+                 stderrSink: Option[String => Unit] = None,
+                 stdoutSink: Option[String => Unit] = None
                  ): Seq[JsValue] = {
     val engineProps = SbtJsEngine.engineTypeToProps(
       engineType,
@@ -424,7 +428,13 @@ object SbtJsTask extends AutoPlugin {
         implicit val t = Timeout(timeout)
         import ExecutionContext.Implicits.global
         Await.result(
-          executeJsOnEngine(engine, shellSource, args, m => state.log.error(m), m => state.log.info(m)),
+          executeJsOnEngine(
+            engine,
+            shellSource,
+            args,
+            stderrSink.getOrElse(m => state.log.error(m)),
+            stdoutSink.getOrElse(m => state.log.info(m))
+          ),
           timeout
         )
     }

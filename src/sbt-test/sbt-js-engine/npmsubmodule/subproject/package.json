@@ -1,6 +1,7 @@
 {
   "name": "subproject-stuff",
-  "devDependencies": {
+  "version": "1.0.0",
+  "dependencies": {
     "mkdirp": "~0.5.0"
   }
 }

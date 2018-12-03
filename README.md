@@ -50,11 +50,8 @@ export SBT_OPTS="$SBT_OPTS -Dsbt.jse.command=/usr/local/bin/node"
 sbt-js-engine also enhances sbt-web with [npm](https://www.npmjs.org/) functionality. If a `package.json` file
 is found in the project's base directory then it will cause npm to run.
 
-npm extracts its artifacts into the node_modules folder of a base directory and makes the contents available to
-sbt-web plugins as a whole. Note that sbt-js-engines loads the
-actual source code of npm via a WebJar and invokes an "npm update". Any external npm activity can therefore be performed
-interchangeably with sbt-js-engine in place.
+npm extracts its artifacts into the `node_modules` folder of a base directory and makes the contents available to sbt-web plugins as a whole. Note that sbt-js-engines loads the actual source code of npm via a WebJar and invokes an "npm update". Any external npm activity can therefore be performed interchangeably with sbt-js-engine in place.
 
 > Note that the npm functionality requires JDK 7 when running Trireme given the additional file system support required. If JDK 6 is required then use Node as the engine.
 
-&copy; Lightbend Inc., 2014
+&copy; Lightbend Inc., 2018

@@ -1,6 +1,7 @@
 {
   "name": "stuff",
-  "devDependencies": {
+  "version": "1.0.0",
+  "dependencies": {
     "glob": "~4.0.6"
   }
 }

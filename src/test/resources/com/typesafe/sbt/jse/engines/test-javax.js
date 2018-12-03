@@ -1,0 +1,1 @@
+print(arguments[0]);

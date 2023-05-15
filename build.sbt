@@ -1,5 +1,7 @@
 lazy val `sbt-js-engine` = project in file(".")
 
+enablePlugins(SbtWebBase)
+
 description := "sbt js engine plugin"
 
 libraryDependencies ++= Seq(

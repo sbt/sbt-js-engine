@@ -21,3 +21,5 @@ package-lock.json
 .idea_modules/
 
 package
+
+.bsp/

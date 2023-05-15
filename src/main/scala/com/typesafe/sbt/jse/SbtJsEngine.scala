@@ -90,10 +90,10 @@ object SbtJsEngine extends AutoPlugin {
       val npmDirectory = baseDirectory.value / NodeModules
       val npmPackageJson = baseDirectory.value / PackageJson
       val cacheDirectory = streams.value.cacheDirectory / "npm"
-      val webJarsNodeModulesPath = (webJarsNodeModulesDirectory in Plugin).value.getCanonicalPath
+      val webJarsNodeModulesPath = (Plugin / webJarsNodeModulesDirectory).value.getCanonicalPath
       val nodePathEnv = LocalEngine.nodePathEnv(immutable.Seq(webJarsNodeModulesPath))
       val engine = engineTypeToEngine(engineType.value, command.value, nodePathEnv)
-      val nodeModulesDirectory = (webJarsNodeModulesDirectory in Plugin).value
+      val nodeModulesDirectory = (Plugin / webJarsNodeModulesDirectory).value
       val logger = streams.value.log
       val baseDir = baseDirectory.value
 
@@ -111,7 +111,7 @@ object SbtJsEngine extends AutoPlugin {
         }
       }
       runUpdate(Set(npmPackageJson)).toSeq
-    }.dependsOn(webJarsNodeModules in Plugin).value,
+    }.dependsOn(Plugin / webJarsNodeModules).value,
 
     nodeModuleGenerators += npmNodeModules.taskValue,
     nodeModuleDirectories += baseDirectory.value / NodeModules

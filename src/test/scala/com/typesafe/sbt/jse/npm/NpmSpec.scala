@@ -19,8 +19,7 @@ class NpmSpec extends Specification {
       val err = new StringBuilder
 
       val to = new File(new File("target"), "webjars")
-      val cacheFile = new File(to, "extraction-cache")
-      val npm = new Npm(Node(), NpmLoader.load(to, cacheFile, this.getClass.getClassLoader), verbose = true)
+      val npm = new Npm(Node(), NpmLoader.load(to, this.getClass.getClassLoader), verbose = true)
       val result = npm.update(false, Nil, s => {
         println("stdout: " + s)
         out.append(s + "\n")

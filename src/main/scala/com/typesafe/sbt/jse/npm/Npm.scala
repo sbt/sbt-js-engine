@@ -34,22 +34,18 @@ class Npm(engine: Engine, npmFile: File, verbose: Boolean = false) {
 }
 
 
-import org.webjars.FileSystemCache
 import org.webjars.WebJarExtractor
 
 object NpmLoader {
   /**
     * Extract the NPM WebJar to disk and return its main entry point.
     * @param to The directory to extract to.
-    * @param cacheFile The file to use as a cache of extractions (we don't extract unless we need to).
     * @param classLoader The classloader that should be used to locate the Node related WebJars.
     * @return The main JavaScript entry point into NPM.
     */
-  def load(to: File, cacheFile: File, classLoader: ClassLoader): File = {
-    val cache = new FileSystemCache(cacheFile)
-    val extractor = new WebJarExtractor(cache, classLoader)
+  def load(to: File, classLoader: ClassLoader): File = {
+    val extractor = new WebJarExtractor(classLoader)
     extractor.extractAllNodeModulesTo(to)
-    cache.save()
     new File(to, "npm" + File.separator + "lib" + File.separator + "npm.js")
   }
 }

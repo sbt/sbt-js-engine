@@ -15,12 +15,10 @@ libraryDependencies ++= Seq(
 
   // NPM
   "org.webjars" % "npm" % "5.0.0-2",
-  "org.webjars" % "webjars-locator-core" % "0.36",
+  "org.webjars" % "webjars-locator-core" % "0.52",
 
   // Test deps
   "junit" % "junit" % "4.13.2" % "test"
 )
 
 addSbtWeb("1.5.0-M1")
-
-(Test / fork) := true

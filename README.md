@@ -1,7 +1,7 @@
 sbt-js-engine
 =============
 
-[![Build Status](https://api.travis-ci.org/sbt/sbt-js-engine.png?branch=master)](https://travis-ci.org/sbt/sbt-js-engine) [![Download](https://api.bintray.com/packages/sbt-web/sbt-plugin-releases/sbt-js-engine/images/download.svg)](https://bintray.com/sbt-web/sbt-plugin-releases/sbt-js-engine/_latestVersion)
+[![Build Status](https://github.com/sbt/sbt-js-engine/actions/workflows/build-test.yml/badge.svg)](https://github.com/sbt/sbt-js-engine/actions/workflows/build-test.yml)
 
 This plugin mainly provides support for the authoring of sbt plugins that require js-engine.
 
@@ -24,8 +24,6 @@ Option              | Description
 --------------------|------------
 command             | The filesystem location of the command to execute. Commands such as "node" default to being known to your path. However there path can be supplied here."
 engineType          | The type of engine to use i.e. CommonNode, Node, PhantomJs, Rhino, Trireme, or AutoDetect. The default is AutoDetect, which uses Node if installed or otherwise falls back to Trireme.
-parallelism         | The number of parallel tasks for the JavaScript engine. Defaults to the # of available processors + 1 to keep things busy.
-npmTimeout          | The maximum amount of time to wait for npm to do its thing.
 
 The following sbt code illustrates how the engine type can be set to Node:
 
@@ -54,4 +52,8 @@ npm extracts its artifacts into the `node_modules` folder of a base directory an
 
 > Note that the npm functionality requires JDK 7 when running Trireme given the additional file system support required. If JDK 6 is required then use Node as the engine.
 
-&copy; Lightbend Inc., 2018
+# Releasing sbt-js-engine
+
+1. Tag the release: `git tag -s 1.2.3`
+1. Push tag: `git push upstream 1.2.3`
+1. GitHub action workflow does the rest: https://github.com/sbt/sbt-js-engine/actions/workflows/publish.yml

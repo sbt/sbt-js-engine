@@ -6,6 +6,8 @@ import scala.collection.immutable
 
 class TriremeSpec extends Specification {
 
+  sequential
+
   "The Trireme engine" should {
     "execute some javascript by passing in a string arg and comparing its return value" in {
       val f = new File(classOf[TriremeSpec].getResource("test-node.js").toURI)

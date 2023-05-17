@@ -59,8 +59,8 @@ object SbtHelloJsTask extends AutoPlugin {
         inConfig(Assets)(helloJsTaskUnscopedSettings) ++
         inConfig(TestAssets)(helloJsTaskUnscopedSettings) ++
         Seq(
-          taskMessage in Assets := "Saying hello",
-          taskMessage in TestAssets := "Saying hello test"
+          (Assets / taskMessage)  := "Saying hello",
+          (TestAssets / taskMessage)  := "Saying hello test"
 
         )
     ) ++ SbtJsTask.addJsSourceFileTasks(hello)

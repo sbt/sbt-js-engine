@@ -42,7 +42,7 @@ class TriremeSpec extends Specification {
     // count will be non 0
     runSimpleTest()
 
-    Thread.sleep(1)
+    Thread.sleep(5) // locally 1ms is enough, but it seems ci server needs a bit more time
 
     import scala.collection.JavaConverters._
     val triremeThreads = Thread.getAllStackTraces.keySet.asScala

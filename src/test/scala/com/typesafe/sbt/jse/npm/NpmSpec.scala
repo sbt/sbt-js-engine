@@ -19,7 +19,7 @@ class NpmSpec extends Specification {
       val err = new StringBuilder
 
       val to = new File(new File("target"), "webjars")
-      val npm = new Npm(Node(), NpmLoader.load(to, this.getClass.getClassLoader), verbose = true)
+      val npm = new Npm(Node(), Some(NpmLoader.load(to, this.getClass.getClassLoader)), verbose = true)
       val result = npm.update(false, Nil, s => {
         println("stdout: " + s)
         out.append(s + "\n")
@@ -32,7 +32,8 @@ class NpmSpec extends Specification {
       val stdOut = out.toString()
 
       result.exitValue must_== 0
-      stdErr must contain("npm http request GET https://registry.npmjs.org/amdefine")
+      stdErr must contain("npm http request GET https://registry.npmjs.org/amdefine") // when using webjar npm
+        .or(contain("npm http fetch GET 200 https://registry.npmjs.org/amdefine")) // when using local installed npm
     }
   }
 }

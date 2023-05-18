@@ -6,27 +6,7 @@ import scala.collection.JavaConverters._
 import scala.collection.immutable
 import scala.sys.process.{Process, ProcessLogger}
 
-class LocalEngine(stdArgs: immutable.Seq[String], stdEnvironment: Map[String, String], override val isNode: Boolean) extends Engine {
-
-  // This quoting functionality is as recommended per http://bugs.java.com/view_bug.do?bug_id=6511002
-  // The JDK can't change due to its backward compatibility requirements, but we have no such constraint
-  // here. Args should be able to be expressed consistently by the user of our API no matter whether
-  // execution is on Windows or not.
-  private def needsQuoting(s: String): Boolean =
-    if (s.isEmpty) true else s.exists(c => c == ' ' || c == '\t' || c == '\\' || c == '"')
-
-  private def winQuote(s: String): String = {
-    if (!needsQuoting(s)) {
-      s
-    } else {
-      "\"" + s.replaceAll("([\\\\]*)\"", "$1$1\\\\\"").replaceAll("([\\\\]*)\\z", "$1$1") + "\""
-    }
-  }
-
-  private val isWindows: Boolean = System.getProperty("os.name").toLowerCase.contains("win")
-
-  private def prepareArgs(args: immutable.Seq[String]): immutable.Seq[String] =
-    if (isWindows) args.map(winQuote) else args
+class LocalEngine(val stdArgs: immutable.Seq[String], val stdEnvironment: Map[String, String], override val isNode: Boolean) extends Engine {
 
   override def executeJs(source: File, args: immutable.Seq[String], environment: Map[String, String],
     stdOutSink: String => Unit, stdErrSink: String => Unit): JsExecutionResult = {
@@ -35,7 +15,7 @@ class LocalEngine(stdArgs: immutable.Seq[String], stdEnvironment: Map[String, St
     val allEnvironment = stdEnvironment ++ environment
 
 
-    val pb = new ProcessBuilder(prepareArgs(allArgs).asJava)
+    val pb = new ProcessBuilder(LocalEngine.prepareArgs(allArgs).asJava)
     pb.environment().putAll(allEnvironment.asJava)
     JsExecutionResult(Process(pb).!(ProcessLogger(stdOutSink, stdErrSink)))
   }
@@ -56,6 +36,26 @@ object LocalEngine {
     val newNodePath = Option(System.getenv("NODE_PATH")).fold(nodePath)(_ + nodePathDelim + nodePath)
     if (newNodePath.isEmpty) Map.empty[String, String] else Map("NODE_PATH" -> newNodePath)
   }
+
+  // This quoting functionality is as recommended per http://bugs.java.com/view_bug.do?bug_id=6511002
+  // The JDK can't change due to its backward compatibility requirements, but we have no such constraint
+  // here. Args should be able to be expressed consistently by the user of our API no matter whether
+  // execution is on Windows or not.
+  private def needsQuoting(s: String): Boolean =
+    if (s.isEmpty) true else s.exists(c => c == ' ' || c == '\t' || c == '\\' || c == '"')
+
+  private def winQuote(s: String): String = {
+    if (!needsQuoting(s)) {
+      s
+    } else {
+      "\"" + s.replaceAll("([\\\\]*)\"", "$1$1\\\\\"").replaceAll("([\\\\]*)\\z", "$1$1") + "\""
+    }
+  }
+
+  private val isWindows: Boolean = System.getProperty("os.name").toLowerCase.contains("win")
+
+  private[jse] def prepareArgs(args: immutable.Seq[String]): immutable.Seq[String] =
+    if (isWindows) args.map(winQuote) else args
 }
 
 /**

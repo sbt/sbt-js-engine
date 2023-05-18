@@ -20,10 +20,12 @@ Enable this plugin in your project by adding it to your project's `plugins.sbt` 
 
 The following options are provided:
 
-Option              | Description
---------------------|------------
-command             | The filesystem location of the command to execute. Commands such as "node" default to being known to your path. However there path can be supplied here."
-engineType          | The type of engine to use i.e. CommonNode, Node, PhantomJs, Rhino, Trireme, or AutoDetect. The default is AutoDetect, which uses Node if installed or otherwise falls back to Trireme.
+Option                      | Description
+----------------------------|------------
+command                     | The filesystem location of the command to execute. Commands such as "node" default to being known to your path. However there path can be supplied here."
+engineType                  | The type of engine to use i.e. CommonNode, Node, PhantomJs, Rhino, Trireme, or AutoDetect. The default is AutoDetect, which uses Node if installed or otherwise falls back to Trireme.
+npmPreferSystemInstalledNpm | Prefer detecting and using locally installed NPM when using a local engine that provides Node support. Defaults to true.
+npmSubcommand               | The subcommand that NPM should use i.e. Install, Update, Ci. Defaults to Update.
 
 The following sbt code illustrates how the engine type can be set to Node:
 

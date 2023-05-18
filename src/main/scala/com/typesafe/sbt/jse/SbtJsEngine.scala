@@ -71,7 +71,7 @@ object SbtJsEngine extends AutoPlugin {
       case EngineType.Javax => JavaxEngine()
       case EngineType.Rhino => Rhino()
       case EngineType.Trireme => Trireme(stdEnvironment = env)
-      case EngineType.AutoDetect => if (autoDetectNode) {
+      case EngineType.AutoDetect => if (autoDetectNode(command)) {
         Node(command, stdEnvironment = env)
       } else {
         Trireme(stdEnvironment = env)
@@ -83,8 +83,8 @@ object SbtJsEngine extends AutoPlugin {
   private val PackageJson = "package.json"
 
 
-  private lazy val autoDetectNode: Boolean = {
-    val nodeExists = Try(Process("node --version").!!).isSuccess
+  private def autoDetectNode(command: Option[File]): Boolean = {
+    val nodeExists = Try(Process(s"${LocalEngine.path(command, "node")} --version").!!).isSuccess
     if (!nodeExists) {
       println("!!!")
       println("Warning: node.js detection failed, sbt will use the Rhino based Trireme JavaScript engine instead to run JavaScript assets compilation, which in some cases may be orders of magnitude slower than using node.js.")

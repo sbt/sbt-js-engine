@@ -23,7 +23,7 @@ libraryDependencies ++= Seq(
   "io.apigee.trireme" % "trireme-node10src" % "0.9.4",
 
   // NPM
-  "org.webjars" % "npm" % "5.0.0-2",
+  "org.webjars" % "npm" % "5.0.0-2", // we are currently stuck: https://github.com/webjars/webjars/issues/1926
   "org.webjars" % "webjars-locator-core" % "0.52",
 
   // Test deps

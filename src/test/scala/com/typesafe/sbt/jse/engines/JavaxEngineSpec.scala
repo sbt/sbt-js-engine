@@ -6,6 +6,8 @@ import scala.collection.immutable
 
 class JavaxEngineSpec extends Specification {
 
+  args(skipAll = !(sys.props("java.specification.version") == "1.8" || sys.props("java.specification.version") == "11"))
+
   "A JavaxEngine" should {
 
     "execute some javascript by passing in a string arg and comparing its return value" in {

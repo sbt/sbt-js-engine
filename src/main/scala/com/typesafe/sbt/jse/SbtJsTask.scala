@@ -81,8 +81,10 @@ object SbtJsTask extends AutoPlugin {
   @deprecated("Add jsTaskSpecificUnscopedProjectSettings to AutoPlugin.projectSettings and jsTaskSpecificUnscopedBuildSettings to AutoPlugin.buildSettings", "1.2.0")
   val jsTaskSpecificUnscopedSettings: Seq[Setting[_]] = jsTaskSpecificUnscopedProjectSettings ++ jsTaskSpecificUnscopedBuildSettings
 
+  @scala.annotation.nowarn("cat=deprecation") 
   override def projectSettings: Seq[Setting[_]] = Seq(
-    jsOptions := "{}"
+    jsOptions := "{}",
+    timeoutPerSource := 2.hours // when removing this line also remove @nowarn above
   )
 
 

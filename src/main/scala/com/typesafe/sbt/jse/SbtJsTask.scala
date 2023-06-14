@@ -180,7 +180,7 @@ object SbtJsTask extends AutoPlugin {
 
     val result = engine.executeJs(
       shellSource,
-      args.to[immutable.Seq],
+      args.to(immutable.Seq),
       Map.empty,
       line => {
         // Extract structured JSON data out before forwarding to the logger
@@ -263,7 +263,7 @@ object SbtJsTask extends AutoPlugin {
     val engine = SbtJsEngine.engineTypeToEngine(
       (task / engineType).value,
       (task / command).value,
-      LocalEngine.nodePathEnv(nodeModulePaths.to[immutable.Seq])
+      LocalEngine.nodePathEnv(nodeModulePaths.to(immutable.Seq))
     )
 
     val sources = ((config / task / Keys.sources).value ** ((config / task / includeFilter).value -- (config / task / excludeFilter).value)).get.map(f => new File(f.getCanonicalPath))
@@ -390,7 +390,7 @@ object SbtJsTask extends AutoPlugin {
     val engine = SbtJsEngine.engineTypeToEngine(
       engineType,
       command,
-      LocalEngine.nodePathEnv(nodeModules.to[immutable.Seq])
+      LocalEngine.nodePathEnv(nodeModules.to(immutable.Seq))
     )
 
     executeJsOnEngine(engine, shellSource, args, stderrSink.getOrElse(m => state.log.error(m)), stdoutSink.getOrElse(m => state.log.info(m)))

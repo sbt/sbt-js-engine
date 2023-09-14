@@ -30,7 +30,7 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.13.2" % "test"
 )
 
-addSbtWeb("1.5.0-M1")
+addSbtWeb("1.5.0")
 
 // Customise sbt-dynver's behaviour to make it work with tags which aren't v-prefixed
 ThisBuild / dynverVTagPrefix := false

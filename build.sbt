@@ -24,13 +24,13 @@ libraryDependencies ++= Seq(
 
   // NPM
   "org.webjars" % "npm" % "5.0.0-2", // we are currently stuck: https://github.com/webjars/webjars/issues/1926
-  "org.webjars" % "webjars-locator-core" % "0.52",
+  "org.webjars" % "webjars-locator-core" % "0.53",
 
   // Test deps
   "junit" % "junit" % "4.13.2" % "test"
 )
 
-addSbtWeb("1.5.0-M1")
+addSbtWeb("1.5.0")
 
 // Customise sbt-dynver's behaviour to make it work with tags which aren't v-prefixed
 ThisBuild / dynverVTagPrefix := false

@@ -284,17 +284,17 @@ object SbtJsTask extends AutoPlugin {
           logger.info(s"$taskMsg on ${modifiedSources.size} source(s)")
 
           val results: Seq[(FileOpResultMappings, Seq[Problem])] = {
-            modifiedSources.map { sources =>
+            Seq(
               executeSourceFilesJs(
                 engine,
                 taskShellSource,
-                sources.pair(Path.relativeTo(taskSourceDirectories)),
+                modifiedSources.pair(Path.relativeTo(taskSourceDirectories)),
                 taskResources,
                 options,
                 m => logger.error(m),
                 m => logger.info(m)
               )
-            }
+            )
           }
 
           results.foldLeft((FileOpResultMappings(), Seq[Problem]())) { (allCompletedResults, completedResult) =>

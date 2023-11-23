@@ -16,7 +16,7 @@ that.
 
 Enable this plugin in your project by adding it to your project's `plugins.sbt` file:
 
-    addSbtPlugin("com.github.sbt" % "sbt-js-engine" % "1.3.0")
+    addSbtPlugin("com.github.sbt" % "sbt-js-engine" % "<version>")
 
 The following options are provided:
 

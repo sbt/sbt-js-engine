@@ -15,7 +15,7 @@ developers += Developer(
 
 libraryDependencies ++= Seq(
   "org.specs2" %% "specs2-core" % "4.10.7" % "test",
-  "org.specs2" %% "specs2-scalacheck" % "4.10.3" % "test",
+  "org.specs2" %% "specs2-scalacheck" % "4.10.7" % "test",
   "io.spray" %% "spray-json" % "1.3.6",
 
   // Trireme

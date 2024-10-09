@@ -2,6 +2,12 @@ lazy val `sbt-js-engine` = project in file(".")
 
 enablePlugins(SbtWebBase)
 
+lazy val scala212 = "2.12.20"
+lazy val scala3 = "3.3.4"
+ThisBuild / crossScalaVersions := Seq(scala212)
+
+sonatypeProfileName := "com.github.sbt.sbt-js-engine" // See https://issues.sonatype.org/browse/OSSRH-77819#comment-1203625
+
 description := "sbt js engine plugin"
 
 developers += Developer(
@@ -38,4 +44,11 @@ ThisBuild / dynverVTagPrefix := false
 Global / onLoad := (Global / onLoad).value.andThen { s =>
   dynverAssertTagVersion.value
   s
+}
+
+(pluginCrossBuild / sbtVersion) := {
+  scalaBinaryVersion.value match {
+    case scala212 => "1.10.2"
+    case _      => "2.0.0-M2"
+  }
 }

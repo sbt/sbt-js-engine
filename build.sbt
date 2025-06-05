@@ -2,8 +2,6 @@ lazy val `sbt-js-engine` = project in file(".")
 
 enablePlugins(SbtWebBase)
 
-sonatypeProfileName := "com.github.sbt.sbt-js-engine" // See https://issues.sonatype.org/browse/OSSRH-77819#comment-1203625
-
 description := "sbt js engine plugin"
 
 developers += Developer(

@@ -18,9 +18,9 @@ jobs:
     uses: playframework/.github/.github/workflows/cmd.yml@v3
     with:
       java: 17, 11, 8
-      scala: 2.12.19
+      scala: 2.12.19, 3.7.2
       cmd: |
-        sbt ++$MATRIX_SCALA test ^scripted
+        sbt ++$MATRIX_SCALA test scripted
 
   finish:
     name: Finish

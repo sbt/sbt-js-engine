@@ -34,7 +34,7 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.13.2" % "test"
 )
 
-addSbtWeb("1.5.8")
+addSbtWeb("1.6.0-M1")
 
 // Customise sbt-dynver's behaviour to make it work with tags which aren't v-prefixed
 ThisBuild / dynverVTagPrefix := false
@@ -49,6 +49,6 @@ Global / onLoad := (Global / onLoad).value.andThen { s =>
 (pluginCrossBuild / sbtVersion) := {
   scalaBinaryVersion.value match {
     case scala212 => "1.10.2"
-    case _      => "2.0.0-M2"
+    case _        => "2.0.0-RC2"
   }
 }

@@ -31,7 +31,11 @@ libraryDependencies ++= Seq(
   "org.webjars" % "webjars-locator-core" % "0.59",
 
   // Test deps
-  "junit" % "junit" % "4.13.2" % "test"
+  "junit" % "junit" % "4.13.2" % "test",
+
+  // Cross build compatibility
+  "org.scala-lang.modules" %% "scala-collection-compat" % "2.13.0"
+
 )
 
 addSbtWeb("1.6.0-M1")
@@ -50,5 +54,12 @@ Global / onLoad := (Global / onLoad).value.andThen { s =>
   scalaBinaryVersion.value match {
     case "2.12" => "1.10.2"
     case _      => "2.0.0-RC2"
+  }
+}
+
+scalacOptions := {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, major)) => Seq("-Xsource:3")
+    case _                => Seq.empty
   }
 }

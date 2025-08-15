@@ -34,6 +34,7 @@ class NpmSpec extends Specification {
       result.exitValue must_== 0
       stdErr must contain("npm http request GET https://registry.npmjs.org/amdefine") // when using webjar npm
         .or(contain("npm http fetch GET 200 https://registry.npmjs.org/amdefine")) // when using local installed npm
+        .or(contain("npm http cache https://registry.npmjs.org/amdefine")) // Just in case it's a cache hit
     }
   }
 }

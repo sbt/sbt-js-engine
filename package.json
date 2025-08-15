@@ -3,6 +3,6 @@
     "version": "1.0.0",
     "dependencies": {
         "amdefine": "^1.0.1",
-        "grpc": "^1.24.11"
+        "@grpc/grpc-js": "^1.13.4"
     }
 }

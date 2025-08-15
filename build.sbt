@@ -6,8 +6,6 @@ lazy val scala212 = "2.12.20"
 lazy val scala3 = "3.7.2"
 ThisBuild / crossScalaVersions := Seq(scala212, scala3)
 
-sonatypeProfileName := "com.github.sbt.sbt-js-engine" // See https://issues.sonatype.org/browse/OSSRH-77819#comment-1203625
-
 description := "sbt js engine plugin"
 
 developers += Developer(

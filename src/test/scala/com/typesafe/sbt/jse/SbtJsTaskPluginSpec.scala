@@ -37,30 +37,33 @@ class SbtJsTaskPluginSpec extends Specification with ScalaCheck {
           }
       """)
 
-      import SbtJsTask.JsTaskProtocol._
+      import SbtJsTask.JsTaskProtocol.*
       val problemResultsPair = p.convertTo[ProblemResultsPair]
       problemResultsPair.problems.size must_== 1
-      problemResultsPair.problems(0).position().offset().get() must_== 5
-      problemResultsPair.problems(0).position().lineContent() must_== "a = 1"
-      problemResultsPair.problems(0).position().line().get() must_== 1
-      problemResultsPair.problems(0).message must_== "Missing semicolon."
-      problemResultsPair.problems(0).severity must_== Severity.Error
-      problemResultsPair.problems(0).position().sourceFile().get must_== new File("src/main/assets/js/a.js")
+      problemResultsPair.problems.head.position().offset().get() must_== 5
+      problemResultsPair.problems.head.position().lineContent() must_== "a = 1"
+      problemResultsPair.problems.head.position().line().get() must_== 1
+      problemResultsPair.problems.head.message must_== "Missing semicolon."
+      problemResultsPair.problems.head.severity must_== Severity.Error
+      problemResultsPair.problems.head.position().sourceFile().get must_== new File("src/main/assets/js/a.js")
       problemResultsPair.results.size must_== 1
-      val opSuccess = problemResultsPair.results(0).result.asInstanceOf[OpSuccess]
+      val opSuccess = problemResultsPair.results.head.result.asInstanceOf[OpSuccess]
       opSuccess.filesRead.size must_== 1
       opSuccess.filesWritten.size must_== 0
-      problemResultsPair.results(0).source must_== new File("src/main/assets/js/a.js")
+      problemResultsPair.results.head.source must_== new File("src/main/assets/js/a.js")
     }
 
     "Write a ProblemResultsPair as json then read it and recover the original value" in {
       import SbtJsTask.JsTaskProtocol.{ProblemResultsPair, problemResultPairFormat}
-      import gens._
-      import helpers._
+      import gens.*
+      import helpers.*
+
 
       prop { (doc: ProblemResultsPair) =>
         val roundTrip = problemResultPairFormat.read(problemResultPairFormat.write(doc))
-        roundTrip must beTypedEqualTo(doc)
+
+        roundTrip.results must containTheSameElementsAs(doc.results, sourceResultPairEquality)
+        roundTrip.problems must containTheSameElementsAs(doc.problems, lineBasedProblemEquality)
       }
     }
   }

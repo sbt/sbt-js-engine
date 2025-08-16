@@ -44,7 +44,7 @@ class TriremeSpec extends Specification {
 
     Thread.sleep(5) // locally 1ms is enough, but it seems ci server needs a bit more time
 
-    import scala.collection.JavaConverters._
+    import scala.jdk.CollectionConverters.*
     val triremeThreads = Thread.getAllStackTraces.keySet.asScala
       .filter(_.getName.contains("Trireme"))
 

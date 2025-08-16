@@ -5,8 +5,9 @@ import java.io.File
 
 import com.typesafe.sbt.jse.engines.{Engine, JsExecutionResult, LocalEngine}
 
+import scala.collection.compat.*
 import scala.collection.immutable
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.*
 import scala.collection.mutable.ListBuffer
 import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
@@ -70,7 +71,7 @@ class Npm(engine: Engine, npmFile: Option[File] = None, preferSystemNpm: Boolean
     }
 
     def executeJsNpm(): JsExecutionResult =
-      engine.executeJs(npmFile.getOrElse(throw new RuntimeException("No NPM JavaScript file passed to the Npm instance via the npmFile param")), args.to[immutable.Seq], Map.empty, outSink, errSink)
+      engine.executeJs(npmFile.getOrElse(throw new RuntimeException("No NPM JavaScript file passed to the Npm instance via the npmFile param")), args.to(immutable.Seq), Map.empty, outSink, errSink)
 
     engine match {
       case localEngine: LocalEngine if preferSystemNpm =>

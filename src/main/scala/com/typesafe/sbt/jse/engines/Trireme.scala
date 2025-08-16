@@ -4,7 +4,7 @@ import java.io._
 import java.util.concurrent.{ForkJoinPool, TimeUnit}
 
 import scala.collection.immutable
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters.*
 import scala.concurrent.duration._
 import io.apigee.trireme.core._
 import org.mozilla.javascript.RhinoException

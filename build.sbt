@@ -2,6 +2,10 @@ lazy val `sbt-js-engine` = project in file(".")
 
 enablePlugins(SbtWebBase)
 
+lazy val scala212 = "2.12.20"
+lazy val scala3 = "3.7.2"
+ThisBuild / crossScalaVersions := Seq(scala212, scala3)
+
 description := "sbt js engine plugin"
 
 developers += Developer(
@@ -25,10 +29,14 @@ libraryDependencies ++= Seq(
   "org.webjars" % "webjars-locator-core" % "0.59",
 
   // Test deps
-  "junit" % "junit" % "4.13.2" % "test"
+  "junit" % "junit" % "4.13.2" % "test",
+
+  // Cross build compatibility
+  "org.scala-lang.modules" %% "scala-collection-compat" % "2.13.0"
+
 )
 
-addSbtWeb("1.5.8")
+addSbtWeb("1.6.0-M1")
 
 // Customise sbt-dynver's behaviour to make it work with tags which aren't v-prefixed
 ThisBuild / dynverVTagPrefix := false
@@ -38,4 +46,18 @@ ThisBuild / dynverVTagPrefix := false
 Global / onLoad := (Global / onLoad).value.andThen { s =>
   dynverAssertTagVersion.value
   s
+}
+
+(pluginCrossBuild / sbtVersion) := {
+  scalaBinaryVersion.value match {
+    case "2.12" => "1.10.2"
+    case _      => "2.0.0-RC2"
+  }
+}
+
+scalacOptions := {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, major)) => Seq("-Xsource:3")
+    case _                => Seq.empty
+  }
 }

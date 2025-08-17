@@ -1,4 +1,4 @@
-package com.typesafe.sbt
+package com.typesafe.sbt.jse
 
 import java.nio.file.{ Path => NioPath }
 import java.io.{ File => IoFile }

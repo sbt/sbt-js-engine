@@ -1,4 +1,4 @@
-package com.typesafe.sbt
+package com.typesafe.sbt.jse
 
 import sbt.*
 import sbt.Keys.Classpath

@@ -2,7 +2,7 @@ package com.typesafe.sbt.jse.engines
 
 import java.io.File
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters.*
 import scala.collection.immutable
 import scala.sys.process.{Process, ProcessLogger}
 

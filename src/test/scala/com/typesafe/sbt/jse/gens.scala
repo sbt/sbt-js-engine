@@ -13,11 +13,11 @@ import org.scalacheck.Arbitrary.arbitrary
 object gens {
   import Gen._
 
-  implicit val fileArb = Arbitrary(fileGen)
-  implicit val opResultArb = Arbitrary(opResultGen)
-  implicit val lineBasedProblemArb = Arbitrary(lineBasedProblemGen)
-  implicit val sourceResultPairArb = Arbitrary(sourceResultPairGen)
-  implicit val problemResultsPairArb = Arbitrary(problemResultsPairGen)
+  implicit val fileArb: Arbitrary[File] = Arbitrary(fileGen)
+  implicit val opResultArb: Arbitrary[OpResult] = Arbitrary(opResultGen)
+  implicit val lineBasedProblemArb: Arbitrary[LineBasedProblem] = Arbitrary(lineBasedProblemGen)
+  implicit val sourceResultPairArb: Arbitrary[SourceResultPair] = Arbitrary(sourceResultPairGen)
+  implicit val problemResultsPairArb: Arbitrary[ProblemResultsPair] = Arbitrary(problemResultsPairGen)
 
   val directoryNameGen: Gen[String] =
     for {

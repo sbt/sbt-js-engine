@@ -1,25 +1,28 @@
 package com.typesafe.sbt.jse
 
 import java.util.concurrent.CopyOnWriteArrayList
-
-import sbt.{Configuration, Def, _}
-import sbt.Keys._
+import sbt.{Configuration, Def, *}
+import sbt.Keys.*
 import com.typesafe.sbt.web.incremental.OpInputHasher
-import spray.json._
-import com.typesafe.sbt.web._
-import xsbti.{Problem, Severity}
+import spray.json.*
+import com.typesafe.sbt.web.*
+import xsbti.{FileConverter, Problem, Severity}
 import com.typesafe.sbt.web.incremental.OpResult
 import com.typesafe.sbt.web.incremental.OpFailure
 import com.typesafe.sbt.web.incremental.OpInputHash
+import com.typesafe.sbt.web
 
 import scala.collection.immutable
 import com.typesafe.sbt.jse.engines.{Engine, LocalEngine}
 import com.typesafe.sbt.web.incremental
 import com.typesafe.sbt.web.CompileProblems
 import com.typesafe.sbt.web.incremental.OpSuccess
+import com.typesafe.sbt.PluginCompat.*
 import sbinary.{Format, Input, Output}
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
+import scala.collection.compat.*
+
 
 object JsTaskImport {
 
@@ -48,26 +51,26 @@ object SbtJsTask extends AutoPlugin {
 
   val autoImport: JsTaskImport.type = JsTaskImport
 
-  import SbtWeb.autoImport._
-  import WebKeys._
-  import SbtJsEngine.autoImport._
-  import JsEngineKeys._
-  import autoImport._
-  import JsTaskKeys._
+  import SbtWeb.autoImport.*
+  import WebKeys.*
+  import SbtJsEngine.autoImport.*
+  import JsEngineKeys.*
+  import autoImport.*
+  import JsTaskKeys.*
 
   val jsTaskSpecificUnscopedConfigSettings = Seq(
-    fileInputHasher := {
+    fileInputHasher := uncached{
       val options = jsOptions.value
       OpInputHasher[File](f => OpInputHash.hashString(f.getAbsolutePath + "|" + options))
     },
     resourceManaged := target.value / moduleName.value
   )
 
-  val jsTaskSpecificUnscopedProjectSettings: Seq[Setting[_]] =
+  val jsTaskSpecificUnscopedProjectSettings: Seq[Setting[?]] =
     inConfig(Assets)(jsTaskSpecificUnscopedConfigSettings) ++
       inConfig(TestAssets)(jsTaskSpecificUnscopedConfigSettings)
 
-  val jsTaskSpecificUnscopedBuildSettings: Seq[Setting[_]] =
+  val jsTaskSpecificUnscopedBuildSettings: Seq[Setting[?]] =
     Seq(
       shellSource := {
         SbtWeb.copyResourceTo(
@@ -79,10 +82,10 @@ object SbtJsTask extends AutoPlugin {
     )
 
   @deprecated("Add jsTaskSpecificUnscopedProjectSettings to AutoPlugin.projectSettings and jsTaskSpecificUnscopedBuildSettings to AutoPlugin.buildSettings", "1.2.0")
-  val jsTaskSpecificUnscopedSettings: Seq[Setting[_]] = jsTaskSpecificUnscopedProjectSettings ++ jsTaskSpecificUnscopedBuildSettings
+  val jsTaskSpecificUnscopedSettings: Seq[Setting[?]] = jsTaskSpecificUnscopedProjectSettings ++ jsTaskSpecificUnscopedBuildSettings
 
   @scala.annotation.nowarn("cat=deprecation") 
-  override def projectSettings: Seq[Setting[_]] = Seq(
+  override def projectSettings: Seq[Setting[?]] = Seq(
     jsOptions := "{}",
     timeoutPerSource := 2.hours // when removing this line also remove @nowarn above
   )
@@ -107,10 +110,10 @@ object SbtJsTask extends AutoPlugin {
       }
     }
 
-    implicit val opSuccessFormat: JsonFormat[OpSuccess] = jsonFormat2(OpSuccess)
+    implicit val opSuccessFormat: JsonFormat[OpSuccess] = jsonFormat2(OpSuccess.apply)
 
     implicit object LineBasedProblemFormat extends JsonFormat[LineBasedProblem] {
-      def write(p: LineBasedProblem) = JsObject(
+      def write(p: LineBasedProblem): JsObject = JsObject(
         "message" -> JsString(p.message),
         "severity" -> {
           p.severity match {
@@ -161,8 +164,8 @@ object SbtJsTask extends AutoPlugin {
 
     case class SourceResultPair(result: OpResult, source: File)
 
-    implicit val sourceResultPairFormat: JsonFormat[SourceResultPair] = jsonFormat2(SourceResultPair)
-    implicit val problemResultPairFormat: JsonFormat[ProblemResultsPair] = jsonFormat2(ProblemResultsPair)
+    implicit val sourceResultPairFormat: JsonFormat[SourceResultPair] = jsonFormat2(SourceResultPair.apply)
+    implicit val problemResultPairFormat: JsonFormat[ProblemResultsPair] = jsonFormat2(ProblemResultsPair.apply)
   }
 
   // Used to signal when the script is sending back structured JSON data
@@ -170,7 +173,7 @@ object SbtJsTask extends AutoPlugin {
 
   private type FileOpResultMappings = Map[File, OpResult]
 
-  private def FileOpResultMappings(s: (File, OpResult)*): FileOpResultMappings = Map(s: _*)
+  private def FileOpResultMappings(s: (File, OpResult)*): FileOpResultMappings = Map(s *)
 
 
   private def executeJsOnEngine(engine: Engine, shellSource: File, args: Seq[String],
@@ -180,7 +183,7 @@ object SbtJsTask extends AutoPlugin {
 
     val result = engine.executeJs(
       shellSource,
-      args.to[immutable.Seq],
+      args.to(immutable.Seq),
       Map.empty,
       line => {
         // Extract structured JSON data out before forwarding to the logger
@@ -188,7 +191,7 @@ object SbtJsTask extends AutoPlugin {
           stdoutSink(line)
         } else {
           val (out, json) = line.span(_ != JsonEscapeChar)
-          if (!out.isEmpty) {
+          if (out.nonEmpty) {
             stdoutSink(out)
           }
           results.add(JsonParser(json.drop(1)))
@@ -201,7 +204,7 @@ object SbtJsTask extends AutoPlugin {
       throw new JsTaskFailure("")
     }
 
-    import scala.collection.JavaConverters._
+    import scala.jdk.CollectionConverters.*
     results.asScala.toList
   }
 
@@ -212,17 +215,20 @@ object SbtJsTask extends AutoPlugin {
     target: File,
     options: String,
     stderrSink: String => Unit,
-    stdoutSink: String => Unit
+    stdoutSink: String => Unit,
+    conv: FileConverter
   ): (FileOpResultMappings, Seq[Problem]) = {
 
+    implicit val fc: FileConverter = conv
+
     val args = immutable.Seq(
-      JsArray(sourceFileMappings.map(x => JsArray(JsString(x._1.getCanonicalPath), JsString(x._2))).toVector).toString(),
+      JsArray(sourceFileMappings.map(x => JsArray(JsString(toFile(x._1).getCanonicalPath), JsString(x._2))).toVector).toString(),
       target.getAbsolutePath,
       options
     )
 
     val results = executeJsOnEngine(engine, shellSource, args, stderrSink, stdoutSink)
-    import JsTaskProtocol._
+    import JsTaskProtocol.*
     val prp = results.foldLeft(ProblemResultsPair(Nil, Nil)) {
       (cumulative, result) =>
         val prp = result.convertTo[ProblemResultsPair]
@@ -239,7 +245,7 @@ object SbtJsTask extends AutoPlugin {
    */
   private implicit object FileFormat extends Format[File] {
 
-    import sbinary.DefaultProtocol._
+    import sbinary.DefaultProtocol.*
 
     def reads(in: Input): File = file(StringFormat.reads(in))
 
@@ -263,10 +269,10 @@ object SbtJsTask extends AutoPlugin {
     val engine = SbtJsEngine.engineTypeToEngine(
       (task / engineType).value,
       (task / command).value,
-      LocalEngine.nodePathEnv(nodeModulePaths.to[immutable.Seq])
+      LocalEngine.nodePathEnv(nodeModulePaths.to(immutable.Seq))
     )
 
-    val sources = ((config / task / Keys.sources).value ** ((config / task / includeFilter).value -- (config / task / excludeFilter).value)).get.map(f => new File(f.getCanonicalPath))
+    val sources = ((config / task / Keys.sources).value ** ((config / task / includeFilter).value -- (config / task / excludeFilter).value)).get().map(f => new File(f.getCanonicalPath))
 
     val logger: Logger = streams.value.log
     val taskMsg = (config / task / taskMessage).value
@@ -274,25 +280,26 @@ object SbtJsTask extends AutoPlugin {
     val taskSourceDirectories = (config / task / sourceDirectories).value
     val taskResources = (config / task / resourceManaged).value
     val options = (config / task / jsOptions).value
+    implicit val fileConverter: FileConverter = (config / Keys.fileConverter ).value
 
     implicit val opInputHasher: OpInputHasher[File] = (config / task / fileInputHasher).value
     val results: (Set[File], Seq[Problem]) = incremental.syncIncremental((config / streams).value.cacheDirectory / "run", sources) {
-      modifiedSources: Seq[File] =>
+      (modifiedSources: Seq[File]) =>
 
         if (modifiedSources.nonEmpty) {
 
           logger.info(s"$taskMsg on ${modifiedSources.size} source(s)")
-
           val results: Seq[(FileOpResultMappings, Seq[Problem])] = {
             Seq(
               executeSourceFilesJs(
                 engine,
                 taskShellSource,
-                modifiedSources.pair(Path.relativeTo(taskSourceDirectories)),
+                modifiedSources.pair(Path.relativeTo(taskSourceDirectories)).map( x => (toFileRef(x._1), x._2)),
                 taskResources,
                 options,
                 m => logger.error(m),
-                m => logger.info(m)
+                m => logger.info(m),
+                fileConverter
               )
             )
           }
@@ -318,11 +325,11 @@ object SbtJsTask extends AutoPlugin {
     filesWritten.toSeq
   }
 
-  private def addUnscopedJsSourceFileTasks(sourceFileTask: TaskKey[Seq[File]]): Seq[Setting[_]] = {
+  private def addUnscopedJsSourceFileTasks(sourceFileTask: TaskKey[Seq[File]]): Seq[Setting[?]] = {
     Seq(
       resourceGenerators += sourceFileTask.taskValue,
       managedResourceDirectories += ((sourceFileTask / resourceManaged)).value
-    ) ++ inTask(sourceFileTask)(Seq(
+    ) ++ sbt.Project.inTask(sourceFileTask)(Seq(
       managedSourceDirectories ++= Def.settingDyn {
         sourceDependencies.value.map(_ / resourceManaged).join
       }.value,
@@ -341,7 +348,7 @@ object SbtJsTask extends AutoPlugin {
     * @param sourceFileTask The task key to declare.
     * @return The settings produced.
     */
-  def addJsSourceFileTasks(sourceFileTask: TaskKey[Seq[File]]): Seq[Setting[_]] = {
+  def addJsSourceFileTasks(sourceFileTask: TaskKey[Seq[File]]): Seq[Setting[?]] = {
     Seq(
       (sourceFileTask / sourceDependencies) := Nil,
       (Assets / sourceFileTask) := jsSourceFileTask(sourceFileTask, Assets).dependsOn((Plugin / nodeModules)).value,
@@ -390,7 +397,7 @@ object SbtJsTask extends AutoPlugin {
     val engine = SbtJsEngine.engineTypeToEngine(
       engineType,
       command,
-      LocalEngine.nodePathEnv(nodeModules.to[immutable.Seq])
+      LocalEngine.nodePathEnv(nodeModules.to(immutable.Seq))
     )
 
     executeJsOnEngine(engine, shellSource, args, stderrSink.getOrElse(m => state.log.error(m)), stdoutSink.getOrElse(m => state.log.info(m)))

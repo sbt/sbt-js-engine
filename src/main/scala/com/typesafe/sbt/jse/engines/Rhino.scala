@@ -21,7 +21,7 @@ class Rhino(
     val script = source.getCanonicalFile
 
     val requireBuilder = {
-      import scala.collection.JavaConverters._
+      import scala.jdk.CollectionConverters.*
       val paths = script.getParentFile.toURI +: stdModulePaths.map(new URI(_))
       val sourceProvider = new UrlModuleSourceProvider(paths.asJava, null)
       val scriptProvider = new SoftCachingModuleScriptProvider(sourceProvider)

@@ -11,6 +11,7 @@ object Import {
 
   object HelloJsTaskKeys {
 
+    @transient
     val hello = TaskKey[Seq[File]]("hello", "Perform JavaScript linting.")
 
     val compress = SettingKey[Boolean]("hello-compress", "Write to a .min.js instead of a .js.")
@@ -40,10 +41,10 @@ object SbtHelloJsTask extends AutoPlugin {
     jsOptions := JsObject(
       "compress" -> JsBoolean(compress.value),
       "fail" -> JsBoolean(fail.value)
-    ).toString()
+    ).compactPrint
   )
 
-  override def buildSettings = inTask(hello)(
+  override def buildSettings = Project.inTask(hello)(
     SbtJsTask.jsTaskSpecificUnscopedBuildSettings ++ Seq(
       moduleName := "hello",
       shellFile := SbtHelloJsTask.getClass.getClassLoader.getResource("hello-shell.js")
@@ -54,7 +55,7 @@ object SbtHelloJsTask extends AutoPlugin {
     compress := false,
     fail := false
   ) ++
-    inTask(hello)(
+    Project.inTask(hello)(
       SbtJsTask.jsTaskSpecificUnscopedProjectSettings ++
         inConfig(Assets)(helloJsTaskUnscopedSettings) ++
         inConfig(TestAssets)(helloJsTaskUnscopedSettings) ++

@@ -51,7 +51,14 @@ Global / onLoad := (Global / onLoad).value.andThen { s =>
 (pluginCrossBuild / sbtVersion) := {
   scalaBinaryVersion.value match {
     case "2.12" => "1.10.2"
-    case _      => "2.0.0-RC2"
+    case _      => "2.0.0-RC3"
+  }
+}
+
+scriptedSbt := {
+  scalaBinaryVersion.value match {
+    case "2.12" => sbtVersion.value
+    case _      => (pluginCrossBuild / sbtVersion).value
   }
 }
 

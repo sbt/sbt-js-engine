@@ -29,6 +29,7 @@ object JsTaskImport {
   object JsTaskKeys {
 
     val fileInputHasher = TaskKey[OpInputHasher[File]]("jstask-file-input-hasher", "A function that hashes a given file.")
+    @transient
     val jsOptions = TaskKey[String]("jstask-js-options", "The JSON options to be passed to the task.")
     val taskMessage = SettingKey[String]("jstask-message", "The message to output for a task")
     val shellFile = SettingKey[URL]("jstask-shell-url", "The url of the file to perform a given task.")
@@ -222,7 +223,7 @@ object SbtJsTask extends AutoPlugin {
     implicit val fc: FileConverter = conv
 
     val args = immutable.Seq(
-      JsArray(sourceFileMappings.map(x => JsArray(JsString(toFile(x._1).getCanonicalPath), JsString(x._2))).toVector).toString(),
+      JsArray(sourceFileMappings.map(x => JsArray(JsString(toFile(x._1).getCanonicalPath), JsString(x._2))).toVector).compactPrint,
       target.getAbsolutePath,
       options
     )

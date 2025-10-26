@@ -32,7 +32,7 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.13.2" % "test",
 
   // Cross build compatibility
-  "org.scala-lang.modules" %% "scala-collection-compat" % "2.13.0"
+  "org.scala-lang.modules" %% "scala-collection-compat" % "2.14.0"
 
 )
 

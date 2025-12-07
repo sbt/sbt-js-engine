@@ -17,8 +17,11 @@ libraryDependencies ++= Seq(
   "io.spray" %% "spray-json" % "1.3.6",
 
   // Trireme
-  "io.apigee.trireme" % "trireme-core" % "0.9.4",
-  "io.apigee.trireme" % "trireme-node10src" % "0.9.4",
+  ("io.apigee.trireme" % "trireme-core" % "0.9.4")
+    .excludeAll(ExclusionRule("org.mozilla", "rhino")),
+  ("io.apigee.trireme" % "trireme-node10src" % "0.9.4")
+    .excludeAll(ExclusionRule("org.mozilla", "rhino")),
+  "org.mozilla" % "rhino" % "1.7.14.1", // CVE-2025-66453
 
   // NPM
   "org.webjars" % "npm" % "5.0.0-2", // we are currently stuck: https://github.com/webjars/webjars/issues/1926

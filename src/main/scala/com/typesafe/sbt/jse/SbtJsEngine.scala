@@ -18,11 +18,11 @@ object JsEngineImport {
   object JsEngineKeys {
 
     object EngineType extends Enumeration {
-      val CommonNode, Node, PhantomJs, Javax, Rhino, Trireme,
+      val CommonNode, Node, PhantomJs, Javax, Rhino,
 
       /**
         * Auto detect the best available engine to use for most common tasks - this will currently select node if
-        * available, otherwise it will fall back to trireme
+        * available, otherwise it will fall back to Rhino
         */
       AutoDetect = Value
     }
@@ -71,11 +71,10 @@ object SbtJsEngine extends AutoPlugin {
       case EngineType.PhantomJs => PhantomJs(command)
       case EngineType.Javax => JavaxEngine()
       case EngineType.Rhino => Rhino()
-      case EngineType.Trireme => Trireme(stdEnvironment = env)
       case EngineType.AutoDetect => if (autoDetectNode(command)) {
         Node(command, stdEnvironment = env)
       } else {
-        Trireme(stdEnvironment = env)
+        Rhino()
       }
     }
   }
@@ -88,7 +87,7 @@ object SbtJsEngine extends AutoPlugin {
     val nodeExists = Try(Process(s"${LocalEngine.path(command, "node")} --version").!!).isSuccess
     if (!nodeExists) {
       println("!!!")
-      println("Warning: node.js detection failed, sbt will use the Rhino based Trireme JavaScript engine instead to run JavaScript assets compilation, which in some cases may be orders of magnitude slower than using node.js.")
+      println("Warning: node.js detection failed, sbt will use the Rhino JavaScript engine instead to run JavaScript assets compilation, which in some cases may be orders of magnitude slower than using node.js.")
       println("!!!")
     }
     nodeExists

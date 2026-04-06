@@ -73,7 +73,7 @@ object SbtJsTask extends AutoPlugin {
 
   val jsTaskSpecificUnscopedBuildSettings: Seq[Setting[?]] =
     Seq(
-      shellSource := {
+      shellSource := uncached {
         SbtWeb.copyResourceTo(
           (Plugin / target).value / moduleName.value,
           shellFile.value,
@@ -352,11 +352,11 @@ object SbtJsTask extends AutoPlugin {
   def addJsSourceFileTasks(sourceFileTask: TaskKey[Seq[File]]): Seq[Setting[?]] = {
     Seq(
       (sourceFileTask / sourceDependencies) := Nil,
-      (Assets / sourceFileTask) := jsSourceFileTask(sourceFileTask, Assets).dependsOn((Plugin / nodeModules)).value,
-      (TestAssets / sourceFileTask) := jsSourceFileTask(sourceFileTask, TestAssets).dependsOn((Plugin / nodeModules)).value,
+      (Assets / sourceFileTask) := uncached(jsSourceFileTask(sourceFileTask, Assets).dependsOn((Plugin / nodeModules)).value),
+      (TestAssets / sourceFileTask) := uncached(jsSourceFileTask(sourceFileTask, TestAssets).dependsOn((Plugin / nodeModules)).value),
       Assets / sourceFileTask / resourceManaged  := webTarget.value / sourceFileTask.key.label / "main",
       TestAssets / sourceFileTask / resourceManaged := webTarget.value / sourceFileTask.key.label / "test",
-      sourceFileTask := ((Assets / sourceFileTask)).value
+      sourceFileTask := uncached(((Assets / sourceFileTask)).value)
     ) ++
       inConfig(Assets)(addUnscopedJsSourceFileTasks(sourceFileTask)) ++
       inConfig(TestAssets)(addUnscopedJsSourceFileTasks(sourceFileTask))

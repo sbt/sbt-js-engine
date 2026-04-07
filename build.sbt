@@ -3,7 +3,7 @@ lazy val `sbt-js-engine` = project in file(".")
 enablePlugins(SbtWebBase)
 
 lazy val scala212 = "2.12.21"
-lazy val scala3 = "3.8.2"
+lazy val scala3 = "3.8.3"
 ThisBuild / crossScalaVersions := Seq(scala212, scala3)
 
 description := "sbt js engine plugin"
@@ -36,7 +36,7 @@ libraryDependencies ++= Seq(
 
 )
 
-addSbtWeb("1.6.0-M2")
+addSbtWeb("1.6.0-M3")
 
 // Customise sbt-dynver's behaviour to make it work with tags which aren't v-prefixed
 ThisBuild / dynverVTagPrefix := false
@@ -50,8 +50,8 @@ Global / onLoad := (Global / onLoad).value.andThen { s =>
 
 (pluginCrossBuild / sbtVersion) := {
   scalaBinaryVersion.value match {
-    case "2.12" => "1.12.4"
-    case _      => "2.0.0-RC10"
+    case "2.12" => "1.12.9"
+    case _      => "2.0.0-RC11"
   }
 }
 

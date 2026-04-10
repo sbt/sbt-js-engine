@@ -36,7 +36,7 @@ libraryDependencies ++= Seq(
 
 )
 
-addSbtWeb("1.6.0-M3")
+addSbtWeb("1.6.0-M4")
 
 // Customise sbt-dynver's behaviour to make it work with tags which aren't v-prefixed
 ThisBuild / dynverVTagPrefix := false

@@ -15,7 +15,7 @@ concurrency:
 jobs:
   tests:
     name: Tests
-    uses: playframework/.github/.github/workflows/cmd.yml@v3
+    uses: playframework/.github/.github/workflows/cmd.yml@v4
     with:
       java: 25, 21, 17
       scala: 2.12.x, 3.x

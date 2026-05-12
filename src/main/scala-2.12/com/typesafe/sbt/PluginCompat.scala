@@ -16,7 +16,7 @@ private[sbt] object PluginCompat {
 
   def toFile(a: Attributed[File])(implicit conv: FileConverter): File =
     a.data
-  def toSet[A](iterable: Iterable[A]): Set[A] = iterable.to[Set]
+  def toSet[A](iterable: Iterable[A]): Set[A] = iterable.to(Set)
   def toFile(f: File)(implicit conv: FileConverter): File = f
   def toFileRef(f: File)(implicit conv: FileConverter): FileRef = f
 }

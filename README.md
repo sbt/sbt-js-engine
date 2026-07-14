@@ -23,7 +23,7 @@ The following options are provided:
 Option                      | Description
 ----------------------------|------------
 command                     | The filesystem location of the command to execute. Commands such as "node" default to being known to your path. However there path can be supplied here."
-engineType                  | The type of engine to use i.e. CommonNode, Node, PhantomJs, Rhino, Trireme, or AutoDetect. The default is AutoDetect, which uses Node if installed or otherwise falls back to Trireme.
+engineType                  | The type of engine to use i.e. CommonNode, Node, PhantomJs, Rhino or AutoDetect. The default is AutoDetect, which uses Node if installed or otherwise falls back to Rhino.
 npmPreferSystemInstalledNpm | Prefer detecting and using locally installed NPM when using a local engine that provides Node support. Defaults to true.
 npmSubcommand               | The subcommand that NPM should use i.e. Install, Update, Ci. Defaults to Update.
 
@@ -51,8 +51,6 @@ sbt-js-engine also enhances sbt-web with [npm](https://www.npmjs.org/) functiona
 is found in the project's base directory then it will cause npm to run.
 
 npm extracts its artifacts into the `node_modules` folder of a base directory and makes the contents available to sbt-web plugins as a whole. Note that sbt-js-engines loads the actual source code of npm via a WebJar and invokes an "npm update". Any external npm activity can therefore be performed interchangeably with sbt-js-engine in place.
-
-> Note that the npm functionality requires JDK 7 when running Trireme given the additional file system support required. If JDK 6 is required then use Node as the engine.
 
 # Releasing sbt-js-engine
 

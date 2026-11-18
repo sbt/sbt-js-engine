@@ -7,7 +7,7 @@ import com.typesafe.sbt.jse.engines.{Engine, JsExecutionResult, LocalEngine}
 
 import scala.collection.compat.*
 import scala.collection.immutable
-import scala.collection.JavaConverters.*
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable.ListBuffer
 import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
